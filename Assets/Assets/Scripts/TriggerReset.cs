@@ -8,5 +8,7 @@ public class TriggerReset : StateMachineBehaviour
     override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         animator.ResetTrigger("Attack1");
+        animator.ResetTrigger("Attack2");
+        animator.SetBool("Attacking", false);
     }
 }
