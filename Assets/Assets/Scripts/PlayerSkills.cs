@@ -49,28 +49,28 @@ public class PlayerSkills : MonoBehaviour
             if (Input.GetButtonDown("1Button"))
             {
                 if (stats.form == 0)
-                    Attack2();
+                    Attack1();
                 if (stats.form == 1)
-                    Attack2();
+                    Attack1();
                 if (stats.form == 2)
-                    Attack2();
+                    Attack1();
                 if (stats.form == 3)
-                    Attack2();
+                    Attack1();
             }
             if (Input.GetButtonDown("2Button"))
             {
-                if (stats.form == 0)
-                    Attack1();
-                if (stats.form == 1)
-                    Attack1();
-                if (stats.form == 2)
-                    Attack1();
-                if (stats.form == 3)
-                    Attack1();
+
             }
             if (Input.GetButtonDown("3Button"))
             {
-
+                if (stats.form == 0)
+                    Attack2();
+                if (stats.form == 1)
+                    Attack2();
+                if (stats.form == 2)
+                    Attack2();
+                if (stats.form == 3)
+                    Attack2();
             }
             if (Input.GetButtonDown("4Button"))
             {
