@@ -15,15 +15,20 @@ public class PlayerStats : MonoBehaviour
     public float redForm;
     public float greenForm;
     public int maxForm;
+    public float transformationTime;
+    private float timer;
     public int form;
     public Image green;
     public Image red;
     public Image blue;
 
+    Color baseColor;
+    public Renderer body;
+    public bool transformed;
     // Start is called before the first frame update
     void Start()
     {
-        
+        baseColor = body.material.GetColor("_Color");
     }
 
     // Update is called once per frame
@@ -32,5 +37,65 @@ public class PlayerStats : MonoBehaviour
         green.fillAmount = greenForm / maxForm;
         red.fillAmount = redForm / maxForm;
         blue.fillAmount = blueForm / maxForm;
+
+        if (HP <= 0)
+        {
+            Destroy(gameObject);
+        }
+
+        if(transformed)
+        {
+            timer += Time.deltaTime;
+            if (form == 1)
+            {
+                greenForm -= transformationTime / maxForm * Time.deltaTime;
+            }
+            if (form == 2)
+            {
+                redForm -= transformationTime / maxForm * Time.deltaTime;
+            }
+            if (form == 3)
+            {
+                blueForm -= transformationTime / maxForm * Time.deltaTime;
+            }
+            if (timer >= transformationTime)
+            {
+                timer = 0;
+                transformed = false;
+                if(form == 1)
+                {
+                    greenForm = 0;
+                }
+                if (form == 2)
+                {
+                    redForm = 0;
+                }
+                if (form == 3)
+                {
+                    blueForm = 0;
+                }
+                body.material.SetColor("_Color", baseColor);
+            }
+            
+        }
+
+        if(greenForm >= maxForm)
+        {
+            form = 1;
+            transformed = true;
+            body.material.SetColor("_Color", Color.green);
+        }
+        if (redForm >= maxForm)
+        {
+            form = 2;
+            transformed = true;
+            body.material.SetColor("_Color", Color.red);
+        }
+        if (blueForm >= maxForm)
+        {
+            form = 3;
+            transformed = true;
+            body.material.SetColor("_Color", Color.blue);
+        }
     }
 }

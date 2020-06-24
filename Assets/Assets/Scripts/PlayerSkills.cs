@@ -7,6 +7,11 @@ public class PlayerSkills : MonoBehaviour
 {
     PlayerStats stats;
     Animator animAvatar;
+    CharacterMovement CM;
+
+    public float dashCooldown;
+    private float dashTimer;
+    public Image CD4;
 
     public bool attack1;
     public BoxCollider attackCol1;
@@ -21,10 +26,18 @@ public class PlayerSkills : MonoBehaviour
     public Image CD2;
 
     public bool trigger;
+
+    public GameObject projectile;
+    public Transform projectileSpawn;
+    public float projectileForce;
+    public float attack3BaseDmg, attack3Cooldown;
+    private float attack3Timer;
+    public Image CD3;
     void Start()
     {
         stats = GetComponent<PlayerStats>();
         animAvatar = GetComponent<Animator>();
+        CM = GetComponent<CharacterMovement>();
     }
 
     // Update is called once per frame
@@ -39,6 +52,16 @@ public class PlayerSkills : MonoBehaviour
         {
             attack2Timer -= Time.deltaTime;
             CD2.fillAmount -= 1 / attack2Cooldown * Time.deltaTime;
+        }
+        if (attack3Timer > 0)
+        {
+            attack3Timer -= Time.deltaTime;
+            CD3.fillAmount -= 1 / attack3Cooldown * Time.deltaTime;
+        }
+        if (dashTimer > 0)
+        {
+            dashTimer -= Time.deltaTime;
+            CD4.fillAmount -= 1 / dashCooldown * Time.deltaTime;
         }
         if (!animAvatar.GetBool("Attacking"))
         {
@@ -59,10 +82,6 @@ public class PlayerSkills : MonoBehaviour
             }
             if (Input.GetButtonDown("2Button"))
             {
-
-            }
-            if (Input.GetButtonDown("3Button"))
-            {
                 if (stats.form == 0)
                     Attack2();
                 if (stats.form == 1)
@@ -72,10 +91,53 @@ public class PlayerSkills : MonoBehaviour
                 if (stats.form == 3)
                     Attack2();
             }
+            if (Input.GetButtonDown("3Button"))
+            {
+                if (stats.form == 0)
+                    Attack3();
+                if (stats.form == 1)
+                    Attack3();
+                if (stats.form == 2)
+                    Attack3();
+                if (stats.form == 3)
+                    Attack3();
+            }
             if (Input.GetButtonDown("4Button"))
             {
+                if (stats.form == 0)
+                    Dash1();
+                if (stats.form == 1)
+                    Dash1();
+                if (stats.form == 2)
+                    Dash1();
+                if (stats.form == 3)
+                    Dash1();
 
             }
+        }
+    }
+    void Attack3()
+    {
+        if(attack3Timer <= 0)
+        {
+            GameObject projectileClone = Instantiate(projectile, projectileSpawn.position, Quaternion.identity);
+            projectileClone.GetComponent<Rigidbody>().AddForce(projectileSpawn.transform.forward * projectileForce);
+            projectileClone.GetComponent<Projectile>().damage = attack3BaseDmg + stats.strenght;
+            projectileClone.GetComponent<Projectile>().stats = stats;
+            /*Rigidbody cloneRb = Instantiate(projectile, projectileSpawn.position, Quaternion.identity) as Rigidbody;
+            cloneRb.AddForce(projectileSpawn.transform.forward * projectileForce);*/
+            attack3Timer = attack3Cooldown;
+            CD3.fillAmount = 1;
+        }
+
+    }
+    void Dash1()
+    {
+        if (dashTimer <= 0)
+        {
+            CM.Dash();
+            dashTimer = dashCooldown;
+            CD4.fillAmount = 1;
         }
     }
 
@@ -114,7 +176,8 @@ public class PlayerSkills : MonoBehaviour
                 other.GetComponentInParent<EnemyStats>().gameObject.SendMessage("TakeDamage", attack1BaseDmg + stats.strenght);
                 attack1 = false;
                 attackCol1.enabled = false;
-                stats.greenForm += 1;
+                if(!stats.transformed)
+                    stats.greenForm += 1;
             }
             /*if (other.gameObject.tag != "Enemy" && trigger || other == null)
             {
@@ -128,7 +191,8 @@ public class PlayerSkills : MonoBehaviour
                 other.GetComponentInParent<EnemyStats>().gameObject.SendMessage("TakeDamage", attack2BaseDmg + stats.strenght);
                 attack2 = false;
                 attackCol2.enabled = false;
-                stats.blueForm += 1;
+                if (!stats.transformed)
+                    stats.redForm += 1;
             }
             /*else
             {

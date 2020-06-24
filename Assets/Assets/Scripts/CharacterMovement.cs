@@ -9,6 +9,13 @@ public class CharacterMovement : MonoBehaviour
     public float sensitivity;
     public float speedRotation;
     CharacterController avatar;
+    public Vector3 lastDirection;
+    public Vector3 lastRotation;
+
+    bool dash;
+    public float dashTime;
+    float dashTimer;
+    public float dashSpeed;
     void Start()
     {
         avatar = GetComponent<CharacterController>();
@@ -17,6 +24,16 @@ public class CharacterMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if(dash)
+        {
+            avatar.Move(lastDirection * dashSpeed);
+            dashTimer += Time.deltaTime;
+            if(dashTimer >= dashTime)
+            {
+                dashTimer = 0;
+                dash = false;
+            }
+        }
         if(manette)
         {
             //Deplacement: joystick gauche
@@ -28,6 +45,10 @@ public class CharacterMovement : MonoBehaviour
             if (inputDirection.z < stillValue && inputDirection.z > -stillValue)
                 inputDirection.z = 0;
             avatar.Move(inputDirection * sensitivity);
+            if (inputDirection != Vector3.zero)
+                lastDirection = inputDirection.normalized;
+            //else
+                //lastDirection = lastRotation;
             //Rotation: joystick droite
             Vector3 inputRotation = Vector3.zero;
             float inputRotationX = inputRotation.x = Input.GetAxis("Rotation_X");
@@ -39,8 +60,14 @@ public class CharacterMovement : MonoBehaviour
             if (inputRotationX != 0 || inputRotationZ != 0)
             {
                 Vector3 LookForRotation = new Vector3(inputRotationX, 0, inputRotationZ);
+                lastRotation = LookForRotation.normalized;
                 transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(LookForRotation), speedRotation * Time.deltaTime);
             }
         }
+    }
+
+    public void Dash()
+    {
+        dash = true;
     }
 }
