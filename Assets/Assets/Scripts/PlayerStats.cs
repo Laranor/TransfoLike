@@ -49,14 +49,21 @@ public class PlayerStats : MonoBehaviour
             if (form == 1)
             {
                 greenForm -= transformationTime / maxForm * Time.deltaTime;
+                redForm = 0;
+                blueForm = 0;
+
             }
             if (form == 2)
             {
                 redForm -= transformationTime / maxForm * Time.deltaTime;
+                greenForm = 0;
+                blueForm = 0;
             }
             if (form == 3)
             {
                 blueForm -= transformationTime / maxForm * Time.deltaTime;
+                redForm = 0;
+                greenForm = 0;
             }
             if (timer >= transformationTime)
             {
