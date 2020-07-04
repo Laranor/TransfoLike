@@ -47,10 +47,15 @@ public class CharacterMovement : MonoBehaviour
             avatar.Move(inputDirection * sensitivity);
             if (inputDirection != Vector3.zero)
                 lastDirection = inputDirection.normalized;
-            //else
-                //lastDirection = lastRotation;
+            if (inputDirection.x != 0 || inputDirection.z != 0) //Rotation en fonction de la direction
+            {
+                Vector3 LookForRotation = new Vector3(inputDirection.x, 0, inputDirection.z);
+                lastRotation = LookForRotation.normalized;
+                transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(LookForRotation), speedRotation * Time.deltaTime);
+            }
+
             //Rotation: joystick droite
-            Vector3 inputRotation = Vector3.zero;
+            /*Vector3 inputRotation = Vector3.zero;
             float inputRotationX = inputRotation.x = Input.GetAxis("Rotation_X");
             if (inputRotationX < stillValue && inputRotationX > -stillValue)
                 inputRotationX = 0;
@@ -62,7 +67,7 @@ public class CharacterMovement : MonoBehaviour
                 Vector3 LookForRotation = new Vector3(inputRotationX, 0, inputRotationZ);
                 lastRotation = LookForRotation.normalized;
                 transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(LookForRotation), speedRotation * Time.deltaTime);
-            }
+            }*/
         }
     }
 
