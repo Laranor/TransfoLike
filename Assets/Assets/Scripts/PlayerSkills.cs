@@ -15,12 +15,13 @@ public class PlayerSkills : MonoBehaviour
 
     public bool attack1;
     public BoxCollider attackCol1;
-    public float attack1BaseDmg, attack1Cooldown;
-    private float attack1Timer;
+    public float stompRapideDamage, stompRapideCD, stompRapideCT;
+    public float cleaveDamage, cleaveCD, cleaveCT;
+    private float attack1Timer, attack1Casting;
     public Image CD1;
 
     public bool attack2;
-    public BoxCollider attackCol2;
+    public CapsuleCollider attackCol2;
     public float attack2BaseDmg, attack2Cooldown;
     private float attack2Timer;
     public Image CD2;
@@ -33,6 +34,8 @@ public class PlayerSkills : MonoBehaviour
     public float attack3BaseDmg, attack3Cooldown;
     private float attack3Timer;
     public Image CD3;
+
+    public List<GameObject> targets;
     void Start()
     {
         stats = GetComponent<PlayerStats>();
@@ -43,11 +46,66 @@ public class PlayerSkills : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(attack1Timer > 0)
+        if(stats.form == 0)
         {
-            attack1Timer -= Time.deltaTime;
-            CD1.fillAmount -= 1 / attack1Cooldown * Time.deltaTime;
+            //Stomp Rapide
+            if (attack1Casting <= stompRapideCT && attack1)
+            {
+                attack1Casting += Time.deltaTime;
+            }
+            if (attack1Casting >= stompRapideCT && attack1)
+            {
+                if (targets.Count > 0)
+                {
+                    for (int i = 0; i < targets.Count; i++)
+                    {
+                        targets[i].SendMessage("TakeDamage", stompRapideDamage + stats.strenght);
+                        if (!stats.transformed)
+                            stats.greenForm += 1;
+                    }
+                }
+                attackCol1.enabled = false;
+                attack1 = false;
+                attack1Casting = 0;
+                targets.Clear();
+            }
+            if (attack1Timer > 0)
+            {
+                attack1Timer -= Time.deltaTime;
+                CD1.fillAmount -= 1 / stompRapideCD * Time.deltaTime;
+            }
         }
+
+        if (stats.form == 1)
+        {
+            //Cleave
+            if (attack1Casting <= cleaveCT && attack1)
+            {
+                attack1Casting += Time.deltaTime;
+            }
+            if (attack1Casting >= cleaveCT && attack1)
+            {
+                if (targets.Count > 0)
+                {
+                    for (int i = 0; i < targets.Count; i++)
+                    {
+                        targets[i].SendMessage("TakeDamage", cleaveDamage + stats.strenght);
+                        if (!stats.transformed)
+                            stats.greenForm += 1;
+                    }
+                }
+                attackCol1.enabled = false;
+                attack1 = false;
+                attack1Casting = 0;
+                targets.Clear();
+            }
+            if (attack1Timer > 0)
+            {
+                attack1Timer -= Time.deltaTime;
+                CD1.fillAmount -= 1 / cleaveCD * Time.deltaTime;
+            }
+        }
+
         if (attack2Timer > 0)
         {
             attack2Timer -= Time.deltaTime;
@@ -65,58 +123,58 @@ public class PlayerSkills : MonoBehaviour
         }
         if (!animAvatar.GetBool("Attacking"))
         {
-            attackCol1.enabled = false;
             attackCol2.enabled = false;
-            attack1 = false;
             attack2 = false;
             if (Input.GetButtonDown("1Button"))
             {
                 if (stats.form == 0)
-                    Attack1();
+                    StompRapide();
                 if (stats.form == 1)
-                    Attack1();
+                    Cleave();
                 if (stats.form == 2)
-                    Attack1();
+                    StompRapide();
                 if (stats.form == 3)
-                    Attack1();
+                    StompRapide();
             }
             if (Input.GetButtonDown("2Button"))
             {
                 if (stats.form == 0)
-                    Attack2();
+                    Cleave360();
                 if (stats.form == 1)
-                    Attack2();
+                    Cleave360();
                 if (stats.form == 2)
-                    Attack2();
+                    Cleave360();
                 if (stats.form == 3)
-                    Attack2();
+                    Cleave360();
             }
             if (Input.GetButtonDown("3Button"))
             {
                 if (stats.form == 0)
-                    Attack3();
+                    TirRapide();
                 if (stats.form == 1)
-                    Attack3();
+                    TirRapide();
                 if (stats.form == 2)
-                    Attack3();
+                    TirRapide();
                 if (stats.form == 3)
-                    Attack3();
+                    TirRapide();
             }
             if (Input.GetButtonDown("4Button"))
             {
                 if (stats.form == 0)
-                    Dash1();
+                    Dash();
                 if (stats.form == 1)
-                    Dash1();
+                    Dash();
                 if (stats.form == 2)
-                    Dash1();
+                    Dash();
                 if (stats.form == 3)
-                    Dash1();
+                    Dash();
 
             }
         }
     }
-    void Attack3()
+
+    //Forme de base
+    void TirRapide()
     {
         if(attack3Timer <= 0)
         {
@@ -131,7 +189,7 @@ public class PlayerSkills : MonoBehaviour
         }
 
     }
-    void Dash1()
+    void Dash()
     {
         if (dashTimer <= 0)
         {
@@ -141,20 +199,21 @@ public class PlayerSkills : MonoBehaviour
         }
     }
 
-    void Attack1()
+    void StompRapide()
     {
         if (attack1Timer <= 0)
         {
+            attack1Casting = 0;
+            attack1 = true;
             attackCol1.enabled = true;
             animAvatar.SetTrigger("Attack1");
-            attack1 = true;
-            attack1Timer = attack1Cooldown;
+            attack1Timer = stompRapideCD;
             CD1.fillAmount = 1;
             animAvatar.SetBool("Attacking", true);
         }
     }
 
-    void Attack2()
+    void Cleave360()
     {
         if (attack2Timer <= 0)
         {
@@ -167,22 +226,42 @@ public class PlayerSkills : MonoBehaviour
         }
     }
 
+    //Forme Berserker
+    void Cleave()
+    {
+        if (attack1Timer <= 0)
+        {
+            attack1Casting = 0;
+            attackCol1.enabled = true;
+            animAvatar.SetTrigger("Attack1");
+            attack1 = true;
+            attack1Timer = cleaveCD;
+            CD1.fillAmount = 1;
+            animAvatar.SetBool("Attacking", true);
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (attack1)
+        {
+            if (other.gameObject.tag == "Enemy")
+            {
+                if (targets.Contains(other.GetComponentInParent<EnemyStats>().gameObject))
+                    targets.Remove(other.GetComponentInParent<EnemyStats>().gameObject);
+            }
+        }
+    }
+
     private void OnTriggerStay(Collider other)
     {
         if (attack1)
         {
             if (other.gameObject.tag == "Enemy")
             {
-                other.GetComponentInParent<EnemyStats>().gameObject.SendMessage("TakeDamage", attack1BaseDmg + stats.strenght);
-                attack1 = false;
-                attackCol1.enabled = false;
-                if(!stats.transformed)
-                    stats.greenForm += 1;
+                if (!targets.Contains(other.GetComponentInParent<EnemyStats>().gameObject))
+                    targets.Add(other.GetComponentInParent<EnemyStats>().gameObject);
             }
-            /*if (other.gameObject.tag != "Enemy" && trigger || other == null)
-            {
-                attackCol1.enabled = false;
-            }*/
         }
         if (attack2)
         {

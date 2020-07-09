@@ -5,7 +5,9 @@ using UnityEngine.UI;
 
 public class PlayerStats : MonoBehaviour
 {
-    public float HP;
+    private float HP;
+    public float maxHP;
+    public Image HPBar;
 
     public int strenght;
     public int agility;
@@ -28,6 +30,7 @@ public class PlayerStats : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        HP = maxHP;
         baseColor = body.material.GetColor("_Color");
     }
 
@@ -37,6 +40,7 @@ public class PlayerStats : MonoBehaviour
         green.fillAmount = greenForm / maxForm;
         red.fillAmount = redForm / maxForm;
         blue.fillAmount = blueForm / maxForm;
+        HPBar.fillAmount = HP / maxHP;
 
         if (HP <= 0)
         {
@@ -82,6 +86,7 @@ public class PlayerStats : MonoBehaviour
                     blueForm = 0;
                 }
                 body.material.SetColor("_Color", baseColor);
+                form = 0;
             }
             
         }
