@@ -23,6 +23,7 @@ public class EnemyAI : MonoBehaviour
         if(distance <= lookRadius)
         {
             transform.LookAt(target);
+            gameObject.transform.rotation = new Quaternion(0, transform.rotation.y, 0, 0);
             agent.SetDestination(target.position);
 
             if(distance <= agent.stoppingDistance)

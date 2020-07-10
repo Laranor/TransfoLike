@@ -8,12 +8,12 @@ public class CharacterMovement : MonoBehaviour
     public float stillValue;
     public float sensitivity;
     public float speedRotation;
-    CharacterController avatar;
+    public CharacterController avatar;
     public Vector3 lastDirection;
     public Vector3 lastRotation;
 
-    bool dash;
-    public float dashTime;
+    public bool dash;
+    private float dashTime;
     float dashTimer;
     public float dashSpeed;
     void Start()
@@ -32,6 +32,7 @@ public class CharacterMovement : MonoBehaviour
             {
                 dashTimer = 0;
                 dash = false;
+                gameObject.layer = 8;
             }
         }
         if(manette)
@@ -71,8 +72,9 @@ public class CharacterMovement : MonoBehaviour
         }
     }
 
-    public void Dash()
+    public void Dash(float dashRange)
     {
         dash = true;
+        dashTime = dashRange;
     }
 }

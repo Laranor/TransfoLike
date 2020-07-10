@@ -9,7 +9,8 @@ public class PlayerSkills : MonoBehaviour
     Animator animAvatar;
     CharacterMovement CM;
 
-    public float dashCooldown;
+    public float dashCooldown, dashTime;
+    public float dashSlashCooldown, dashSlashTime, dashSlashDamage;
     private float dashTimer;
     public Image CD4;
 
@@ -22,8 +23,9 @@ public class PlayerSkills : MonoBehaviour
 
     public bool attack2;
     public CapsuleCollider attackCol2;
-    public float attack2BaseDmg, attack2Cooldown;
-    private float attack2Timer;
+    public float cleave360Damage, cleave360CD, cleave360CT;
+    public float tourbillonDamage, tourbillonCD, tourbillonCT;
+    private float attack2Timer, attack2Casting;
     public Image CD2;
 
     public bool trigger;
@@ -74,6 +76,44 @@ public class PlayerSkills : MonoBehaviour
                 attack1Timer -= Time.deltaTime;
                 CD1.fillAmount -= 1 / stompRapideCD * Time.deltaTime;
             }
+            //Cleave 360
+            if (attack2Casting <= cleave360CT && attack2)
+            {
+                attack2Casting += Time.deltaTime;
+            }
+            if (attack2Casting >= cleave360CT && attack2)
+            {
+                if (targets.Count > 0)
+                {
+                    for (int i = 0; i < targets.Count; i++)
+                    {
+                        targets[i].SendMessage("TakeDamage", cleave360Damage + stats.strenght);
+                        if (!stats.transformed)
+                            stats.redForm += 1;
+                    }
+                }
+                attackCol2.enabled = false;
+                attack2 = false;
+                attack2Casting = 0;
+                targets.Clear();
+            }
+            if (attack2Timer > 0)
+            {
+                attack2Timer -= Time.deltaTime;
+                CD2.fillAmount -= 1 / cleave360CD * Time.deltaTime;
+            }
+            //Tir Rapide
+            if (attack3Timer > 0)
+            {
+                attack3Timer -= Time.deltaTime;
+                CD3.fillAmount -= 1 / attack3Cooldown * Time.deltaTime;
+            }
+            //Dash
+            if (dashTimer > 0)
+            {
+                dashTimer -= Time.deltaTime;
+                CD4.fillAmount -= 1 / dashCooldown * Time.deltaTime;
+            }
         }
 
         if (stats.form == 1)
@@ -90,8 +130,6 @@ public class PlayerSkills : MonoBehaviour
                     for (int i = 0; i < targets.Count; i++)
                     {
                         targets[i].SendMessage("TakeDamage", cleaveDamage + stats.strenght);
-                        if (!stats.transformed)
-                            stats.greenForm += 1;
                     }
                 }
                 attackCol1.enabled = false;
@@ -104,27 +142,40 @@ public class PlayerSkills : MonoBehaviour
                 attack1Timer -= Time.deltaTime;
                 CD1.fillAmount -= 1 / cleaveCD * Time.deltaTime;
             }
+            //Tourbillon
+            if (attack2Casting <= tourbillonCT && attack2)
+            {
+                attack2Casting += Time.deltaTime;
+            }
+            if (attack2Casting >= tourbillonCT && attack2)
+            {
+                if (targets.Count > 0)
+                {
+                    for (int i = 0; i < targets.Count; i++)
+                    {
+                        targets[i].SendMessage("TakeDamage", tourbillonDamage + stats.strenght);
+                    }
+                }
+                attackCol2.enabled = false;
+                attack2 = false;
+                attack2Casting = 0;
+                targets.Clear();
+            }
+            if (attack2Timer > 0)
+            {
+                attack2Timer -= Time.deltaTime;
+                CD2.fillAmount -= 1 / tourbillonCD * Time.deltaTime;
+            }
+            //Dash Slash
+            if (dashTimer > 0)
+            {
+                dashTimer -= Time.deltaTime;
+                CD4.fillAmount -= 1 / dashSlashCooldown * Time.deltaTime;
+            }
         }
 
-        if (attack2Timer > 0)
-        {
-            attack2Timer -= Time.deltaTime;
-            CD2.fillAmount -= 1 / attack2Cooldown * Time.deltaTime;
-        }
-        if (attack3Timer > 0)
-        {
-            attack3Timer -= Time.deltaTime;
-            CD3.fillAmount -= 1 / attack3Cooldown * Time.deltaTime;
-        }
-        if (dashTimer > 0)
-        {
-            dashTimer -= Time.deltaTime;
-            CD4.fillAmount -= 1 / dashCooldown * Time.deltaTime;
-        }
         if (!animAvatar.GetBool("Attacking"))
         {
-            attackCol2.enabled = false;
-            attack2 = false;
             if (Input.GetButtonDown("1Button"))
             {
                 if (stats.form == 0)
@@ -141,7 +192,7 @@ public class PlayerSkills : MonoBehaviour
                 if (stats.form == 0)
                     Cleave360();
                 if (stats.form == 1)
-                    Cleave360();
+                    Tourbillon();
                 if (stats.form == 2)
                     Cleave360();
                 if (stats.form == 3)
@@ -163,7 +214,7 @@ public class PlayerSkills : MonoBehaviour
                 if (stats.form == 0)
                     Dash();
                 if (stats.form == 1)
-                    Dash();
+                    SlashDash();
                 if (stats.form == 2)
                     Dash();
                 if (stats.form == 3)
@@ -182,8 +233,6 @@ public class PlayerSkills : MonoBehaviour
             projectileClone.GetComponent<Rigidbody>().AddForce(projectileSpawn.transform.forward * projectileForce);
             projectileClone.GetComponent<Projectile>().damage = attack3BaseDmg + stats.strenght;
             projectileClone.GetComponent<Projectile>().stats = stats;
-            /*Rigidbody cloneRb = Instantiate(projectile, projectileSpawn.position, Quaternion.identity) as Rigidbody;
-            cloneRb.AddForce(projectileSpawn.transform.forward * projectileForce);*/
             attack3Timer = attack3Cooldown;
             CD3.fillAmount = 1;
         }
@@ -193,7 +242,8 @@ public class PlayerSkills : MonoBehaviour
     {
         if (dashTimer <= 0)
         {
-            CM.Dash();
+            gameObject.layer = 12;
+            CM.Dash(dashTime);
             dashTimer = dashCooldown;
             CD4.fillAmount = 1;
         }
@@ -217,10 +267,11 @@ public class PlayerSkills : MonoBehaviour
     {
         if (attack2Timer <= 0)
         {
+            attack2Casting = 0;
+            attack2 = true;
             attackCol2.enabled = true;
             animAvatar.SetTrigger("Attack2");
-            attack2 = true;
-            attack2Timer = attack2Cooldown;
+            attack2Timer = cleave360CD;
             CD2.fillAmount = 1;
             animAvatar.SetBool("Attacking", true);
         }
@@ -240,10 +291,32 @@ public class PlayerSkills : MonoBehaviour
             animAvatar.SetBool("Attacking", true);
         }
     }
+    void Tourbillon()
+    {
+        if (attack2Timer <= 0)
+        {
+            attack2Casting = 0;
+            attack2 = true;
+            attackCol2.enabled = true;
+            animAvatar.SetTrigger("Attack2");
+            attack2Timer = tourbillonCD;
+            CD2.fillAmount = 1;
+            animAvatar.SetBool("Attacking", true);
+        }
+    }
+    void SlashDash()
+    {
+        if (dashTimer <= 0)
+        {
+            CM.Dash(dashSlashTime);
+            dashTimer = dashSlashCooldown;
+            CD4.fillAmount = 1;
+        }
+    }
 
     private void OnTriggerExit(Collider other)
     {
-        if (attack1)
+        if (attack1 || attack2)
         {
             if (other.gameObject.tag == "Enemy")
             {
@@ -255,28 +328,13 @@ public class PlayerSkills : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
-        if (attack1)
+        if (attack1 || attack2)
         {
             if (other.gameObject.tag == "Enemy")
             {
                 if (!targets.Contains(other.GetComponentInParent<EnemyStats>().gameObject))
                     targets.Add(other.GetComponentInParent<EnemyStats>().gameObject);
             }
-        }
-        if (attack2)
-        {
-            if (other.gameObject.tag == "Enemy")
-            {
-                other.GetComponentInParent<EnemyStats>().gameObject.SendMessage("TakeDamage", attack2BaseDmg + stats.strenght);
-                attack2 = false;
-                attackCol2.enabled = false;
-                if (!stats.transformed)
-                    stats.redForm += 1;
-            }
-            /*else
-            {
-                attackCol2.enabled = false;
-            }*/
         }
     }
 }
