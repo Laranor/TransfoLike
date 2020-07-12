@@ -5,6 +5,8 @@ using UnityEngine.UI;
 
 public class PlayerStats : MonoBehaviour
 {
+    PlayerSkills playerSkills;
+
     private float HP;
     public float maxHP;
     public Image HPBar;
@@ -32,6 +34,7 @@ public class PlayerStats : MonoBehaviour
     {
         HP = maxHP;
         baseColor = body.material.GetColor("_Color");
+        playerSkills = GetComponent<PlayerSkills>();
     }
 
     // Update is called once per frame
@@ -55,7 +58,6 @@ public class PlayerStats : MonoBehaviour
                 greenForm -= transformationTime / maxForm * Time.deltaTime;
                 redForm = 0;
                 blueForm = 0;
-
             }
             if (form == 2)
             {
@@ -87,6 +89,7 @@ public class PlayerStats : MonoBehaviour
                 }
                 body.material.SetColor("_Color", baseColor);
                 form = 0;
+                ResetCD();
             }
             
         }
@@ -96,18 +99,29 @@ public class PlayerStats : MonoBehaviour
             form = 1;
             transformed = true;
             body.material.SetColor("_Color", Color.green);
+            ResetCD();
         }
         if (redForm >= maxForm)
         {
             form = 2;
             transformed = true;
             body.material.SetColor("_Color", Color.red);
+            ResetCD();
         }
         if (blueForm >= maxForm)
         {
             form = 3;
             transformed = true;
             body.material.SetColor("_Color", Color.blue);
+            ResetCD();
         }
+    }
+
+    void ResetCD()
+    {
+        playerSkills.CD1.fillAmount = 0;
+        playerSkills.CD2.fillAmount = 0;
+        playerSkills.CD3.fillAmount = 0;
+        playerSkills.CD4.fillAmount = 0;
     }
 }

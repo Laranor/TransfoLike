@@ -9,6 +9,7 @@ public class TriggerReset : StateMachineBehaviour
     {
         animator.ResetTrigger("Attack1");
         animator.ResetTrigger("Attack2");
+        animator.ResetTrigger("Attack3");
         animator.SetBool("Attacking", false);
     }
 }
