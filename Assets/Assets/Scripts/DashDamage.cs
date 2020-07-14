@@ -7,22 +7,22 @@ public class DashDamage : MonoBehaviour
     public PlayerSkills playerSkills;
     public PlayerStats playerStats;
     public CharacterMovement characterMovement;
-    void Start()
-    {
-        
-    }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
     private void OnTriggerEnter(Collider other)
     {
         if(other.gameObject.tag == "Enemy")
         {
             if(playerStats.form == 1 && characterMovement.dash)
-                other.GetComponentInParent<EnemyStats>().gameObject.SendMessage("TakeDamage", playerSkills.dashSlashDamage + playerStats.strenght);
+            {
+                if (playerStats.revenge)
+                {
+                    other.GetComponentInParent<EnemyStats>().gameObject.SendMessage("TakeDamage", (playerSkills.dashSlashDamage + playerStats.strenght) * playerStats.revengeDamage);
+                    playerStats.Heal(playerStats.revengeHeal);
+                }
+                else
+                    other.GetComponentInParent<EnemyStats>().gameObject.SendMessage("TakeDamage", playerSkills.dashSlashDamage + playerStats.strenght);
+            }
+
         }
     }
 }

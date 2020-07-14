@@ -132,7 +132,13 @@ public class PlayerSkills : MonoBehaviour
                 {
                     for (int i = 0; i < targets.Count; i++)
                     {
-                        targets[i].SendMessage("TakeDamage", cleaveDamage + stats.strenght);
+                        if (stats.revenge)
+                        {
+                            targets[i].SendMessage("TakeDamage", (cleaveDamage + stats.strenght) * stats.revengeDamage);
+                            stats.Heal(stats.revengeHeal);
+                        }
+                        else
+                            targets[i].SendMessage("TakeDamage", cleaveDamage + stats.strenght);
                         if (attack3Timer > 0)
                         {
                             attack3Timer -= boomReducCD;
@@ -141,6 +147,11 @@ public class PlayerSkills : MonoBehaviour
                             attack3Timer = 0;
 
                     }
+                }
+                if(stats.revenge)
+                {
+                    stats.revenge = false;
+                    stats.revengeTimer = 0;
                 }
                 attackCol1.enabled = false;
                 attack1 = false;
@@ -163,8 +174,19 @@ public class PlayerSkills : MonoBehaviour
                 {
                     for (int i = 0; i < targets.Count; i++)
                     {
-                        targets[i].SendMessage("TakeDamage", tourbillonDamage + stats.strenght);
+                        if (stats.revenge)
+                        {
+                            targets[i].SendMessage("TakeDamage", (tourbillonDamage * stats.revengeDamage) + stats.strenght );
+                            stats.Heal(stats.revengeHeal);
+                        }
+                        else
+                            targets[i].SendMessage("TakeDamage", tourbillonDamage + stats.strenght);
                     }
+                }
+                if (stats.revenge)
+                {
+                    stats.revenge = false;
+                    stats.revengeTimer = 0;
                 }
                 attackCol2.enabled = false;
                 attack2 = false;
@@ -193,8 +215,18 @@ public class PlayerSkills : MonoBehaviour
                 {
                     for (int i = 0; i < targets.Count; i++)
                     {
+                        if (stats.revenge)
+                        {
+                            targets[i].SendMessage("TakeDamage", (boomDamage + stats.strenght) * stats.revengeDamage);
+                            stats.Heal(stats.revengeHeal);
+                        }
                         targets[i].SendMessage("TakeDamage", boomDamage + stats.strenght);
                     }
+                }
+                if (stats.revenge)
+                {
+                    stats.revenge = false;
+                    stats.revengeTimer = 0;
                 }
                 attackCol3.enabled = false;
                 attack3 = false;

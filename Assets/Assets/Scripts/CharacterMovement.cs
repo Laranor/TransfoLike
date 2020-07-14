@@ -16,8 +16,11 @@ public class CharacterMovement : MonoBehaviour
     private float dashTime;
     float dashTimer;
     public float dashSpeed;
+
+    PlayerStats playerStats;
     void Start()
     {
+        playerStats = GetComponent<PlayerStats>();
         avatar = GetComponent<CharacterController>();
     }
 
@@ -33,6 +36,11 @@ public class CharacterMovement : MonoBehaviour
                 dashTimer = 0;
                 dash = false;
                 gameObject.layer = 8;
+                if(playerStats.revenge)
+                {
+                    playerStats.revenge = false;
+                    playerStats.revengeTimer = 0;
+                }
             }
         }
         if(manette)

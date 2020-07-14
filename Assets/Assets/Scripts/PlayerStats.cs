@@ -29,7 +29,11 @@ public class PlayerStats : MonoBehaviour
     Color baseColor;
     public Renderer body;
     public bool transformed;
-    // Start is called before the first frame update
+
+    public bool revenge;
+    private float revengeCDTimer;
+    public float revengeTimer, revengeDuration, revengeDamage, revengeHeal, revengeCD;
+    public Image CDpassiv;
     void Start()
     {
         HP = maxHP;
@@ -40,6 +44,8 @@ public class PlayerStats : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.A))
+            TakeDamage(10);
         green.fillAmount = greenForm / maxForm;
         red.fillAmount = redForm / maxForm;
         blue.fillAmount = blueForm / maxForm;
@@ -55,19 +61,20 @@ public class PlayerStats : MonoBehaviour
             timer += Time.deltaTime;
             if (form == 1)
             {
-                greenForm -= transformationTime / maxForm * Time.deltaTime;
+                greenForm -= maxForm / transformationTime * Time.deltaTime;
                 redForm = 0;
                 blueForm = 0;
+                CDpassiv.fillAmount = revengeCDTimer / revengeCD;
             }
             if (form == 2)
             {
-                redForm -= transformationTime / maxForm * Time.deltaTime;
+                redForm -= maxForm / transformationTime * Time.deltaTime;
                 greenForm = 0;
                 blueForm = 0;
             }
             if (form == 3)
             {
-                blueForm -= transformationTime / maxForm * Time.deltaTime;
+                blueForm -= maxForm / transformationTime * Time.deltaTime;
                 redForm = 0;
                 greenForm = 0;
             }
@@ -78,6 +85,9 @@ public class PlayerStats : MonoBehaviour
                 if(form == 1)
                 {
                     greenForm = 0;
+                    revengeTimer = 0;
+                    revenge = false;
+                    revengeCDTimer = 0;
                 }
                 if (form == 2)
                 {
@@ -91,7 +101,24 @@ public class PlayerStats : MonoBehaviour
                 form = 0;
                 ResetCD();
             }
-            
+
+            if(revenge)
+            {
+                revengeTimer += Time.deltaTime;
+                if(revengeTimer > revengeDuration)
+                {
+                    revengeTimer = 0;
+                    revenge = false;
+                }
+            }
+            if(revengeCDTimer > 0)
+            {
+                revengeCDTimer -= Time.deltaTime;
+            }
+        }
+        else
+        {
+            CDpassiv.fillAmount = 0;
         }
 
         if(greenForm >= maxForm)
@@ -123,5 +150,22 @@ public class PlayerStats : MonoBehaviour
         playerSkills.CD2.fillAmount = 0;
         playerSkills.CD3.fillAmount = 0;
         playerSkills.CD4.fillAmount = 0;
+    }
+
+    public void TakeDamage(float dmg)
+    {
+        HP -= dmg;
+        //Passif berseker Revenge
+        if(form == 1 && !revenge && revengeCDTimer <= 0)
+        {
+            revenge = true;
+            revengeCDTimer = revengeCD;
+        }
+    }
+    public void Heal (float healAmount)
+    {
+        HP += healAmount;
+        if (HP > maxHP)
+            HP = maxHP;
     }
 }
