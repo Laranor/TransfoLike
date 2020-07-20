@@ -96,6 +96,8 @@ public class PlayerStats : MonoBehaviour
                 if (form == 3)
                 {
                     blueForm = 0;
+                    playerSkills.shieldUp = false;
+                    playerSkills.shield.SetActive(false);
                 }
                 body.material.SetColor("_Color", baseColor);
                 form = 0;
@@ -139,6 +141,7 @@ public class PlayerStats : MonoBehaviour
         {
             form = 3;
             transformed = true;
+            playerSkills.shieldValue = playerSkills.shieldMax;
             body.material.SetColor("_Color", Color.blue);
             ResetCD();
         }
@@ -154,7 +157,20 @@ public class PlayerStats : MonoBehaviour
 
     public void TakeDamage(float dmg)
     {
-        HP -= dmg;
+        if(playerSkills.shieldUp)
+        {
+            playerSkills.shieldValue -= dmg;
+            if(playerSkills.shieldValue <= 0)
+            {
+                HP += playerSkills.shieldValue;
+                playerSkills.shieldValue = 0;
+                playerSkills.shieldUp = false;
+            }
+        }
+        else
+        {
+            HP -= dmg;
+        }
         //Passif berseker Revenge
         if(form == 1 && !revenge && revengeCDTimer <= 0)
         {

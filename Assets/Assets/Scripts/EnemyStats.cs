@@ -10,6 +10,8 @@ public class EnemyStats : MonoBehaviour
     public Image HPBar;
     public Canvas canvas;
     public Transform cam;
+    public bool stunned;
+    private float stunnedTime;
     void Start()
     {
         HP = maxHP;
@@ -24,10 +26,21 @@ public class EnemyStats : MonoBehaviour
         {
             Destroy(gameObject);
         }
+        if(stunned)
+        {
+            stunnedTime -= Time.deltaTime;
+            if (stunnedTime <= 0)
+                stunned = false;
+        }
     }
 
     public void TakeDamage(float dmg)
     {
         HP -= dmg;
+    }
+    public void TakeStun(float duration)
+    {
+        stunned = true;
+        stunnedTime = duration;
     }
 }

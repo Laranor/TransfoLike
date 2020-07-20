@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class CharacterMovement : MonoBehaviour
 {
-    public bool manette = true;
     public float stillValue;
     public float sensitivity;
     public float speedRotation;
@@ -43,7 +42,7 @@ public class CharacterMovement : MonoBehaviour
                 }
             }
         }
-        if(manette)
+        if(!dash)
         {
             //Deplacement: joystick gauche
             Vector3 inputDirection = Vector3.zero;

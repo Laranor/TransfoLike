@@ -11,34 +11,47 @@ public class PlayerSkills : MonoBehaviour
 
     public float dashCooldown, dashTime;
     public float dashSlashCooldown, dashSlashTime, dashSlashDamage;
-    private float dashTimer;
+    public float slowChargeNoShieldCD, slowChargeNoShieldTime, slowChargeNoShieldDamage;
+    public float slowChargeShieldCD, slowChargeShieldTime, slowChargeShieldStun;
+    private float dashTimer, dashTimerShield;
     public Image CD4;
 
     public bool attack1;
-    public BoxCollider attackCol1;
+    BoxCollider attackCol1;
+    public BoxCollider stompRapideCol, cleaveCol, stompShieldCol, stompNoShieldCol;
     public float stompRapideDamage, stompRapideCD, stompRapideCT;
     public float cleaveDamage, cleaveCD, cleaveCT;
-    private float attack1Timer, attack1Casting;
+    public float stompShieldDamage, stompShieldCD, stompShieldCT, stompShieldStun;
+    public float stompNoShieldDamage, stompNoShieldCD, stompNoShieldCT;
+    private float attack1Timer, attack1TimerShield, attack1Casting;
     public Image CD1;
 
     public bool attack2;
-    public CapsuleCollider attackCol2;
+    CapsuleCollider attackCol2;
+    public CapsuleCollider cleave360Col, tourbillonCol, tripleProcCol;
     public float cleave360Damage, cleave360CD, cleave360CT;
     public float tourbillonDamage, tourbillonCD, tourbillonCT;
+    public float shieldValue, shieldMax, shieldCD, shieldCharge;
+    public bool shieldUp;
     private float attack2Timer, attack2Casting;
-    public Image CD2;
+    public Image CD2, shieldBar;
+    public GameObject shield;
 
     public bool trigger;
 
     public bool attack3;
     public BoxCollider attackCol3;
-    public GameObject tirRapideProjectile;
+    public GameObject tirRapideProjectile, weaponThrowShield, weaponThrowNoShield;
     public Transform projectileSpawn;
-    public float projectileForce;
-    public float tirRapideDamage, tirRapideCD;
+    public float projectileForce, weaponThrowShieldProjectileForce, weaponThrowNoShieldProjectileForce;
+    public float tirRapideDamage, tirRapideCD, tirRapideCT;
     public float boomDamage, boomCD, boomCT, boomReducCD;
-    private float attack3Timer, attack3Casting;
+    public float weaponThrowShieldDamage, weaponThrowShieldCD, weaponThrowShieldCT;
+    public float weaponThrowNoShieldDamage, weaponThrowNoShieldCD, weaponThrowNoShieldCT, weaponThrowNoShieldStun;
+    public bool weaponGround;
+    private float attack3Timer, attack3TimerShield, attack3Casting;
     public Image CD3;
+
 
     public List<GameObject> targets;
     void Start()
@@ -53,6 +66,8 @@ public class PlayerSkills : MonoBehaviour
     {
         if(stats.form == 0)
         {
+            attackCol1 = stompRapideCol;
+            attackCol2 = cleave360Col;
             //Stomp Rapide
             if (attack1Casting <= stompRapideCT && attack1)
             {
@@ -79,6 +94,8 @@ public class PlayerSkills : MonoBehaviour
                 attack1Timer -= Time.deltaTime;
                 CD1.fillAmount = attack1Timer / stompRapideCD;
             }
+            else
+                CD1.fillAmount = 0;
             //Cleave 360
             if (attack2Casting <= cleave360CT && attack2)
             {
@@ -105,22 +122,30 @@ public class PlayerSkills : MonoBehaviour
                 attack2Timer -= Time.deltaTime;
                 CD2.fillAmount = attack2Timer / cleave360CD;
             }
+            else
+                CD2.fillAmount = 0;
             //Tir Rapide
             if (attack3Timer > 0)
             {
                 attack3Timer -= Time.deltaTime;
                 CD3.fillAmount = attack3Timer / tirRapideCD;
             }
+            else
+                CD3.fillAmount = 0;
             //Dash
             if (dashTimer > 0)
             {
                 dashTimer -= Time.deltaTime;
                 CD4.fillAmount = dashTimer / dashCooldown;
             }
+            else
+                CD4.fillAmount = 0;
         }
 
         if (stats.form == 1)
         {
+            attackCol1 = cleaveCol; ;
+            attackCol2 = tourbillonCol;
             //Cleave
             if (attack1Casting <= cleaveCT && attack1)
             {
@@ -163,6 +188,8 @@ public class PlayerSkills : MonoBehaviour
                 attack1Timer -= Time.deltaTime;
                 CD1.fillAmount = attack1Timer / cleaveCD;
             }
+            else
+                CD1.fillAmount = 0;
             //Tourbillon
             if (attack2Casting <= tourbillonCT && attack2)
             {
@@ -198,12 +225,16 @@ public class PlayerSkills : MonoBehaviour
                 attack2Timer -= Time.deltaTime;
                 CD2.fillAmount = attack2Timer / tourbillonCD;
             }
+            else
+                CD2.fillAmount = 0;
             //Dash Slash
             if (dashTimer > 0)
             {
                 dashTimer -= Time.deltaTime;
                 CD4.fillAmount = dashTimer / dashSlashCooldown;
             }
+            else
+                CD4.fillAmount = 0;
             //Boom
             if (attack3Casting <= boomCT && attack3)
             {
@@ -238,6 +269,141 @@ public class PlayerSkills : MonoBehaviour
                 attack3Timer -= Time.deltaTime;
                 CD3.fillAmount = attack3Timer / boomCD;
             }
+            else
+                CD3.fillAmount = 0;
+        }
+
+        if (stats.form == 2)
+        {
+            attackCol2 = tripleProcCol;
+        }
+
+        if (stats.form == 3)
+        {
+            shield.SetActive(true);
+            
+            shieldBar.fillAmount = shieldValue / shieldMax;
+            //Spell with shield
+            if (shieldUp)
+            {
+                shield.transform.position = new Vector3(shield.transform.position.x, 110, shield.transform.position.z);
+                attackCol1 = stompShieldCol;
+                //Stomp
+                if (attack1Casting <= stompShieldCT && attack1)
+                {
+                    attack1Casting += Time.deltaTime;
+                }
+                if (attack1Casting >= stompShieldCT && attack1)
+                {
+                    if (targets.Count > 0)
+                    {
+                        for (int i = 0; i < targets.Count; i++)
+                        {
+                            targets[i].SendMessage("TakeDamage", stompShieldDamage + stats.strenght);
+                            targets[i].SendMessage("TakeStun", stompShieldStun);
+                            if (!stats.transformed)
+                                stats.greenForm += 1;
+                        }
+                    }
+                    attackCol1.enabled = false;
+                    attack1 = false;
+                    attack1Casting = 0;
+                    targets.Clear();
+                }
+                if (attack1TimerShield > 0)
+                {
+                    CD1.fillAmount = attack1TimerShield / stompShieldCD;
+                }
+                else
+                    CD1.fillAmount = 0;
+                //Weapon Throw
+                if (attack3TimerShield > 0)
+                {
+                    CD3.fillAmount = attack3TimerShield / weaponThrowShieldCD;
+                }
+                else
+                    CD3.fillAmount = 0;
+                //Slow Charge
+                if (dashTimerShield > 0)
+                {
+                    CD4.fillAmount = dashTimerShield / slowChargeShieldCD;
+                }
+                else
+                    CD4.fillAmount = 0;
+            }
+            //Spell without shield
+            else
+            {
+                shield.transform.position = new Vector3(shield.transform.position.x, 90, shield.transform.position.z);
+                attackCol1 = stompNoShieldCol;
+                if (shieldValue < shieldMax && !weaponGround)
+                    shieldValue += shieldCharge * Time.deltaTime;
+                //Stomp
+                if (attack1Casting <= stompNoShieldCT && attack1)
+                {
+                    attack1Casting += Time.deltaTime;
+                }
+                if (attack1Casting >= stompNoShieldCT && attack1)
+                {
+                    if (targets.Count > 0)
+                    {
+                        for (int i = 0; i < targets.Count; i++)
+                        {
+                            targets[i].SendMessage("TakeDamage", stompNoShieldDamage + stats.strenght);
+                            if (!stats.transformed)
+                                stats.greenForm += 1;
+                        }
+                    }
+                    attackCol1.enabled = false;
+                    attack1 = false;
+                    attack1Casting = 0;
+                    targets.Clear();
+                }
+                if (attack1Timer > 0)
+                {
+                    CD1.fillAmount = attack1Timer / stompNoShieldCD;
+                }
+                else
+                    CD1.fillAmount = 0;
+                //Weapon Throw
+                if (attack3Timer > 0)
+                {
+                    CD3.fillAmount = attack3Timer / weaponThrowNoShieldCD;
+                }
+                else
+                    CD3.fillAmount = 0;
+                //Slow Charge
+                if (dashTimer > 0)
+                {
+                    CD4.fillAmount = dashTimer / slowChargeNoShieldCD;
+                }
+                else
+                    CD4.fillAmount = 0;
+            }
+            if (attack1TimerShield > 0)
+            {
+                attack1TimerShield -= Time.deltaTime;
+            }
+            if (attack3TimerShield > 0)
+            {
+                attack3TimerShield -= Time.deltaTime;
+            }
+            if (dashTimerShield > 0)
+            {
+                dashTimerShield -= Time.deltaTime;
+            }
+            if (attack1Timer > 0)
+            {
+                attack1Timer -= Time.deltaTime;
+            }
+            if (attack3Timer > 0)
+            {
+                attack3Timer -= Time.deltaTime;
+            }
+            if (dashTimer > 0)
+            {
+                dashTimer -= Time.deltaTime;
+            }
         }
 
         if (!animAvatar.GetBool("Attacking"))
@@ -249,9 +415,9 @@ public class PlayerSkills : MonoBehaviour
                 if (stats.form == 1)
                     Cleave();
                 if (stats.form == 2)
-                    StompRapide();
+                    ImmoShot();
                 if (stats.form == 3)
-                    StompRapide();
+                    Stomp();
             }
             if (Input.GetButtonDown("2Button"))
             {
@@ -260,9 +426,9 @@ public class PlayerSkills : MonoBehaviour
                 if (stats.form == 1)
                     Tourbillon();
                 if (stats.form == 2)
-                    Cleave360();
+                    TripleProc();
                 if (stats.form == 3)
-                    Cleave360();
+                    Shield();
             }
             if (Input.GetButtonDown("3Button"))
             {
@@ -271,9 +437,9 @@ public class PlayerSkills : MonoBehaviour
                 if (stats.form == 1)
                     Boom();
                 if (stats.form == 2)
-                    TirRapide();
+                    BoucingShot();
                 if (stats.form == 3)
-                    TirRapide();
+                    WeaponThrow();
             }
             if (Input.GetButtonDown("4Button"))
             {
@@ -282,9 +448,9 @@ public class PlayerSkills : MonoBehaviour
                 if (stats.form == 1)
                     SlashDash();
                 if (stats.form == 2)
-                    Dash();
+                    Teleportation();
                 if (stats.form == 3)
-                    Dash();
+                    SlowCharge();
 
             }
         }
@@ -390,6 +556,129 @@ public class PlayerSkills : MonoBehaviour
             attack3Timer = boomCD;
             CD3.fillAmount = 1;
             animAvatar.SetBool("Attacking", true);
+        }
+    }
+
+    //Forme Caster
+    void ImmoShot()
+    {
+        if (attack1Timer <= 0)
+        {
+
+        }
+    }
+    void TripleProc()
+    {
+        if (attack2Timer <= 0)
+        {
+
+        }
+    }
+    void Teleportation()
+    {
+        if (dashTimer <= 0)
+        {
+
+        }
+    }
+    void BoucingShot()
+    {
+        if (attack3Timer <= 0)
+        {
+
+        }
+    }
+
+    //Forme Tank
+    void Stomp()
+    {
+        if(shieldUp)
+        {
+            if (attack1TimerShield <= 0)
+            {
+                attack1Casting = 0;
+                attack1 = true;
+                attackCol1.enabled = true;
+                animAvatar.SetTrigger("Attack1");
+                attack1TimerShield = stompShieldCD;
+                CD1.fillAmount = 1;
+                animAvatar.SetBool("Attacking", true);
+            }
+        }
+        else
+        {
+            if (attack1Timer <= 0)
+            {
+                attack1Casting = 0;
+                attack1 = true;
+                attackCol1.enabled = true;
+                animAvatar.SetTrigger("Attack1");
+                attack1Timer = stompNoShieldCD;
+                CD1.fillAmount = 1;
+                animAvatar.SetBool("Attacking", true);
+            }
+        }
+    }
+    void Shield()
+    {
+        if (shieldUp)
+        {
+            shieldUp = false;
+        }
+        else
+        {
+            if(shieldValue > 0 && !weaponGround)
+                shieldUp = true;
+        }
+    }
+    void SlowCharge()
+    {
+        if (shieldUp)
+        {
+            if (dashTimerShield <= 0)
+            {
+                CM.Dash(slowChargeShieldTime);
+                dashTimerShield = slowChargeShieldCD;
+                CD4.fillAmount = 1;
+            }
+        }
+        else
+        {
+            if (dashTimer <= 0)
+            {
+                CM.Dash(slowChargeNoShieldTime);
+                dashTimer = slowChargeNoShieldCD;
+                CD4.fillAmount = 1;
+            }
+        }
+    }
+    void WeaponThrow()
+    {
+        if (shieldUp)
+        {
+            if (attack3TimerShield <= 0)
+            {
+                GameObject projectileClone = Instantiate(weaponThrowShield, projectileSpawn.position, Quaternion.identity);
+                projectileClone.GetComponent<Rigidbody>().AddForce(projectileSpawn.transform.forward * weaponThrowShieldProjectileForce);
+                projectileClone.GetComponent<Projectile>().damage = weaponThrowShieldDamage + stats.strenght;
+                projectileClone.GetComponent<Projectile>().stats = stats;
+                attack3TimerShield = weaponThrowShieldCD;
+                CD3.fillAmount = 1;
+                weaponGround = true;
+                shieldUp = false;
+            }
+        }
+        else
+        {
+            if (attack3Timer <= 0)
+            {
+                GameObject projectileClone = Instantiate(weaponThrowShield, projectileSpawn.position, Quaternion.identity);
+                projectileClone.GetComponent<Rigidbody>().AddForce(projectileSpawn.transform.forward * weaponThrowNoShieldProjectileForce);
+                projectileClone.GetComponent<Projectile>().damage = weaponThrowNoShieldDamage + stats.strenght;
+                projectileClone.GetComponent<Projectile>().stats = stats;
+                attack3Timer = weaponThrowNoShieldCD;
+                CD3.fillAmount = 1;
+            }
         }
     }
 

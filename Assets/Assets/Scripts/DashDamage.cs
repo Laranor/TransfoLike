@@ -25,4 +25,19 @@ public class DashDamage : MonoBehaviour
 
         }
     }
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.tag == "Enemy")
+        {
+            if (playerStats.form == 3 && characterMovement.dash)
+            {
+                if(playerSkills.shieldUp)
+                    collision.gameObject.GetComponentInParent<EnemyStats>().gameObject.SendMessage("TakeStun", playerSkills.slowChargeShieldStun);
+                if (!playerSkills.shieldUp)
+                {
+
+                }
+            }
+        }
+    }
 }
