@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 4195786648349687451}
   - component: {fileID: -3490067116905620292}
   m_Layer: 10
-  m_Name: Projectile
+  m_Name: Tir Rapide
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -26,7 +26,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 275868057245772268}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.328, z: 1.235}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 2155130550723816337}
@@ -61,6 +61,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fee4c6179cc157448ac4944ce8721d37, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  damage: 0
+  stats: {fileID: 0}
 --- !u!1 &2881959285625353047
 GameObject:
   m_ObjectHideFlags: 0

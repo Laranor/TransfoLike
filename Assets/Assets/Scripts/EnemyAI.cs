@@ -6,30 +6,60 @@ using UnityEngine.AI;
 public class EnemyAI : MonoBehaviour
 {
     public float lookRadius;
+    public bool pushed;
 
     Transform target;
     NavMeshAgent agent;
-
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
         target = PlayerManager.instance.player.transform;
     }
 
-    // Update is called once per frame
     void Update()
     {
-        float distance = Vector3.Distance(target.position, transform.position);
-        if(distance <= lookRadius)
+        if (transform.position.y > 0.085)
+            transform.position = new Vector3(transform.position.x, 0.083f, transform.position.z);
+        if(agent.isActiveAndEnabled && !pushed)
         {
-            transform.LookAt(target);
-            gameObject.transform.rotation = new Quaternion(0, transform.rotation.y, 0, 0);
-            agent.SetDestination(target.position);
-
-            if(distance <= agent.stoppingDistance)
+            float distance = Vector3.Distance(target.position, transform.position);
+            if (distance <= lookRadius)
             {
-                //attack
+                transform.LookAt(target);
+                gameObject.transform.rotation = new Quaternion(0, transform.rotation.y, 0, 0);
+                agent.SetDestination(target.position);
+
+                if (distance <= agent.stoppingDistance)
+                {
+                    //attack
+                }
             }
         }
+    }
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.tag == "Walls" && pushed)
+        {
+            Debug.Log("oui");
+            PushedOnWall();
+            if (target.gameObject.GetComponentInParent<CharacterMovement>().dash)
+                GetComponent<EnemyStats>().gameObject.SendMessage("TakeDamage", target.gameObject.GetComponentInParent<PlayerSkills>().slowChargeNoShieldDamage);
+        }
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if(collision.gameObject.tag == "Walls" && pushed)
+        {
+            Debug.Log("oui");
+            PushedOnWall();
+            if (target.gameObject.GetComponentInParent<CharacterMovement>().dash)
+                GetComponent<EnemyStats>().gameObject.SendMessage("TakeDamage", target.gameObject.GetComponentInParent<PlayerSkills>().slowChargeNoShieldDamage);
+        }
+    }
+    public void PushedOnWall()
+    {
+        pushed = false;
+        agent.enabled = true;
     }
 }

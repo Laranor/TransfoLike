@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.UI;
 
 public class EnemyStats : MonoBehaviour
@@ -12,12 +13,13 @@ public class EnemyStats : MonoBehaviour
     public Transform cam;
     public bool stunned;
     private float stunnedTime;
+    NavMeshAgent agent;
     void Start()
     {
+        agent = GetComponent<NavMeshAgent>();
         HP = maxHP;
     }
 
-    // Update is called once per frame
     void Update()
     {
         canvas.transform.LookAt(cam);
@@ -28,9 +30,13 @@ public class EnemyStats : MonoBehaviour
         }
         if(stunned)
         {
+            agent.enabled = false;
             stunnedTime -= Time.deltaTime;
             if (stunnedTime <= 0)
+            {
                 stunned = false;
+                agent.enabled = true;
+            }
         }
     }
 

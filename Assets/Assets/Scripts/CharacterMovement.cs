@@ -17,6 +17,7 @@ public class CharacterMovement : MonoBehaviour
     public float dashSpeed;
 
     PlayerStats playerStats;
+    public DashDamage dashDamage;
     void Start()
     {
         playerStats = GetComponent<PlayerStats>();
@@ -40,6 +41,8 @@ public class CharacterMovement : MonoBehaviour
                     playerStats.revenge = false;
                     playerStats.revengeTimer = 0;
                 }
+                dashDamage.empale = false;
+                dashDamage.empaled = null;
             }
         }
         if(!dash)
@@ -61,21 +64,10 @@ public class CharacterMovement : MonoBehaviour
                 lastRotation = LookForRotation.normalized;
                 transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(LookForRotation), speedRotation * Time.deltaTime);
             }
-
-            //Rotation: joystick droite
-            /*Vector3 inputRotation = Vector3.zero;
-            float inputRotationX = inputRotation.x = Input.GetAxis("Rotation_X");
-            if (inputRotationX < stillValue && inputRotationX > -stillValue)
-                inputRotationX = 0;
-            float inputRotationZ = inputRotation.z = Input.GetAxis("Rotation_Z");
-            if (inputRotationZ < stillValue && inputRotationZ > -stillValue)
-                inputRotationZ = 0;
-            if (inputRotationX != 0 || inputRotationZ != 0)
-            {
-                Vector3 LookForRotation = new Vector3(inputRotationX, 0, inputRotationZ);
-                lastRotation = LookForRotation.normalized;
-                transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(LookForRotation), speedRotation * Time.deltaTime);
-            }*/
+        }
+        if(transform.position.y > 0.01)
+        {
+            transform.position = new Vector3(transform.position.x, 0, transform.position.z);
         }
     }
 

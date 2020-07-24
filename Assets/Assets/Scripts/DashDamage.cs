@@ -1,12 +1,25 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class DashDamage : MonoBehaviour
 {
     public PlayerSkills playerSkills;
     public PlayerStats playerStats;
     public CharacterMovement characterMovement;
+
+    public bool empale;
+    public GameObject empaled;
+    public Transform empalePos;
+
+    private void Update()
+    {
+        if (empale && empaled != null)
+        {
+            empaled.transform.position = new Vector3(empalePos.position.x, empaled.transform.position.y, empalePos.position.z);
+        }
+    }
 
     private void OnTriggerEnter(Collider other)
     {
@@ -22,20 +35,16 @@ public class DashDamage : MonoBehaviour
                 else
                     other.GetComponentInParent<EnemyStats>().gameObject.SendMessage("TakeDamage", playerSkills.dashSlashDamage + playerStats.strenght);
             }
-
-        }
-    }
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (collision.gameObject.tag == "Enemy")
-        {
             if (playerStats.form == 3 && characterMovement.dash)
             {
-                if(playerSkills.shieldUp)
-                    collision.gameObject.GetComponentInParent<EnemyStats>().gameObject.SendMessage("TakeStun", playerSkills.slowChargeShieldStun);
+                if (playerSkills.shieldUp)
+                    other.gameObject.GetComponentInParent<EnemyStats>().gameObject.SendMessage("TakeStun", playerSkills.slowChargeShieldStun);
                 if (!playerSkills.shieldUp)
                 {
-
+                    other.gameObject.GetComponentInParent<EnemyAI>().pushed = true;
+                    other.gameObject.GetComponentInParent<NavMeshAgent>().enabled = false;
+                    empale = true;
+                    empaled = other.gameObject.GetComponentInParent<EnemyStats>().gameObject;
                 }
             }
         }

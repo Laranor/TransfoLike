@@ -462,7 +462,7 @@ public class PlayerSkills : MonoBehaviour
         if(attack3Timer <= 0)
         {
             GameObject projectileClone = Instantiate(tirRapideProjectile, projectileSpawn.position, Quaternion.identity);
-            projectileClone.GetComponent<Rigidbody>().AddForce(projectileSpawn.transform.forward * projectileForce);
+            projectileClone.GetComponent<Rigidbody>().AddForce(projectileSpawn.transform.forward * projectileForce, ForceMode.VelocityChange);
             projectileClone.GetComponent<Projectile>().damage = tirRapideDamage + stats.strenght;
             projectileClone.GetComponent<Projectile>().stats = stats;
             attack3Timer = tirRapideCD;
@@ -659,7 +659,7 @@ public class PlayerSkills : MonoBehaviour
             if (attack3TimerShield <= 0)
             {
                 GameObject projectileClone = Instantiate(weaponThrowShield, projectileSpawn.position, Quaternion.identity);
-                projectileClone.GetComponent<Rigidbody>().AddForce(projectileSpawn.transform.forward * weaponThrowShieldProjectileForce);
+                projectileClone.GetComponent<Rigidbody>().AddForce(projectileSpawn.transform.forward * weaponThrowShieldProjectileForce, ForceMode.VelocityChange);
                 projectileClone.GetComponent<Projectile>().damage = weaponThrowShieldDamage + stats.strenght;
                 projectileClone.GetComponent<Projectile>().stats = stats;
                 attack3TimerShield = weaponThrowShieldCD;
@@ -672,10 +672,11 @@ public class PlayerSkills : MonoBehaviour
         {
             if (attack3Timer <= 0)
             {
-                GameObject projectileClone = Instantiate(weaponThrowShield, projectileSpawn.position, Quaternion.identity);
-                projectileClone.GetComponent<Rigidbody>().AddForce(projectileSpawn.transform.forward * weaponThrowNoShieldProjectileForce);
-                projectileClone.GetComponent<Projectile>().damage = weaponThrowNoShieldDamage + stats.strenght;
-                projectileClone.GetComponent<Projectile>().stats = stats;
+                GameObject projectileClone = Instantiate(weaponThrowNoShield, projectileSpawn.position, transform.rotation);
+                projectileClone.GetComponent<Rigidbody>().AddForce(projectileSpawn.transform.forward * weaponThrowNoShieldProjectileForce, ForceMode.VelocityChange);
+                projectileClone.GetComponent<WeaponThrowNoShield>().damage = weaponThrowNoShieldDamage + stats.strenght;
+                projectileClone.GetComponent<WeaponThrowNoShield>().stats = stats;
+                projectileClone.GetComponent<WeaponThrowNoShield>().stunDuration = weaponThrowNoShieldStun;
                 attack3Timer = weaponThrowNoShieldCD;
                 CD3.fillAmount = 1;
             }
