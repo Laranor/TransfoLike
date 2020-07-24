@@ -12,8 +12,8 @@ public class CharacterMovement : MonoBehaviour
     public Vector3 lastRotation;
 
     public bool dash;
-    private float dashTime;
-    float dashTimer;
+    public float dashTime;
+    public float dashTimer;
     public float dashSpeed;
 
     PlayerStats playerStats;
@@ -41,8 +41,14 @@ public class CharacterMovement : MonoBehaviour
                     playerStats.revenge = false;
                     playerStats.revengeTimer = 0;
                 }
-                dashDamage.empale = false;
-                dashDamage.empaled = null;
+                if(dashDamage.empaled != null)
+                {
+                    dashDamage.empale = false;
+                    dashDamage.empaled.GetComponent<EnemyAI>().pushed = false;
+                    dashDamage.empaled.GetComponent<EnemyAI>().agent.enabled = true;
+                    dashDamage.empaled = null;
+                }
+                
             }
         }
         if(!dash)

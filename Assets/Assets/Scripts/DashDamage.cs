@@ -49,4 +49,22 @@ public class DashDamage : MonoBehaviour
             }
         }
     }
+    private void OnTriggerStay(Collider other)
+    {
+        if (other.gameObject.tag == "Enemy")
+        {
+            if (playerStats.form == 3 && characterMovement.dash)
+            {
+                if (playerSkills.shieldUp)
+                    other.gameObject.GetComponentInParent<EnemyStats>().gameObject.SendMessage("TakeStun", playerSkills.slowChargeShieldStun);
+                if (!playerSkills.shieldUp)
+                {
+                    other.gameObject.GetComponentInParent<EnemyAI>().pushed = true;
+                    other.gameObject.GetComponentInParent<NavMeshAgent>().enabled = false;
+                    empale = true;
+                    empaled = other.gameObject.GetComponentInParent<EnemyStats>().gameObject;
+                }
+            }
+        }
+    }
 }

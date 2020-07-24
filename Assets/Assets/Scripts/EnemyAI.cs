@@ -9,7 +9,7 @@ public class EnemyAI : MonoBehaviour
     public bool pushed;
 
     Transform target;
-    NavMeshAgent agent;
+    public NavMeshAgent agent;
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
@@ -40,18 +40,30 @@ public class EnemyAI : MonoBehaviour
     {
         if (other.gameObject.tag == "Walls" && pushed)
         {
-            Debug.Log("oui");
             PushedOnWall();
             if (target.gameObject.GetComponentInParent<CharacterMovement>().dash)
+            {
+                target.gameObject.GetComponentInParent<CharacterMovement>().dashTimer = target.gameObject.GetComponentInParent<CharacterMovement>().dashTime;
                 GetComponent<EnemyStats>().gameObject.SendMessage("TakeDamage", target.gameObject.GetComponentInParent<PlayerSkills>().slowChargeNoShieldDamage);
+            }
         }
     }
-
+    private void OnTriggerStay(Collider other)
+    {
+        if (other.gameObject.tag == "Walls" && pushed)
+        {
+            PushedOnWall();
+            if (target.gameObject.GetComponentInParent<CharacterMovement>().dash)
+            {
+                target.gameObject.GetComponentInParent<CharacterMovement>().dashTimer = target.gameObject.GetComponentInParent<CharacterMovement>().dashTime;
+                GetComponent<EnemyStats>().gameObject.SendMessage("TakeDamage", target.gameObject.GetComponentInParent<PlayerSkills>().slowChargeNoShieldDamage);
+            }
+        }
+    }
     private void OnCollisionEnter(Collision collision)
     {
         if(collision.gameObject.tag == "Walls" && pushed)
         {
-            Debug.Log("oui");
             PushedOnWall();
             if (target.gameObject.GetComponentInParent<CharacterMovement>().dash)
                 GetComponent<EnemyStats>().gameObject.SendMessage("TakeDamage", target.gameObject.GetComponentInParent<PlayerSkills>().slowChargeNoShieldDamage);

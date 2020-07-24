@@ -660,8 +660,8 @@ public class PlayerSkills : MonoBehaviour
             {
                 GameObject projectileClone = Instantiate(weaponThrowShield, projectileSpawn.position, Quaternion.identity);
                 projectileClone.GetComponent<Rigidbody>().AddForce(projectileSpawn.transform.forward * weaponThrowShieldProjectileForce, ForceMode.VelocityChange);
-                projectileClone.GetComponent<Projectile>().damage = weaponThrowShieldDamage + stats.strenght;
-                projectileClone.GetComponent<Projectile>().stats = stats;
+                projectileClone.GetComponent<WeaponThrowShield>().damage = weaponThrowShieldDamage + stats.strenght;
+                projectileClone.GetComponent<WeaponThrowShield>().stats = stats;
                 attack3TimerShield = weaponThrowShieldCD;
                 CD3.fillAmount = 1;
                 weaponGround = true;
