@@ -29,11 +29,11 @@ public class DashDamage : MonoBehaviour
             {
                 if (playerStats.revenge)
                 {
-                    other.GetComponentInParent<EnemyStats>().gameObject.SendMessage("TakeDamage", (playerSkills.dashSlashDamage + playerStats.strenght) * playerStats.revengeDamage);
+                    other.GetComponentInParent<EnemyStats>().gameObject.SendMessage("TakeDamage", playerSkills.dashSlashDamage * playerStats.revengeDamage);
                     playerStats.Heal(playerStats.revengeHeal);
                 }
                 else
-                    other.GetComponentInParent<EnemyStats>().gameObject.SendMessage("TakeDamage", playerSkills.dashSlashDamage + playerStats.strenght);
+                    other.GetComponentInParent<EnemyStats>().gameObject.SendMessage("TakeDamage", playerSkills.dashSlashDamage);
             }
             if (playerStats.form == 3 && characterMovement.dash)
             {

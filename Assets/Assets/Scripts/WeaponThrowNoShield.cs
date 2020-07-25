@@ -7,7 +7,6 @@ public class WeaponThrowNoShield : MonoBehaviour
 {
     public float damage;
     public float stunDuration;
-    public PlayerStats stats;
     public bool damageProc;
     public bool empale;
     public GameObject empaled;

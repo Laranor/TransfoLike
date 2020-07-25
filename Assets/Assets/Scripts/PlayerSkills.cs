@@ -18,11 +18,13 @@ public class PlayerSkills : MonoBehaviour
 
     public bool attack1;
     BoxCollider attackCol1;
+    public GameObject ImmoShotProjectile;
     public BoxCollider stompRapideCol, cleaveCol, stompShieldCol, stompNoShieldCol;
     public float stompRapideDamage, stompRapideCD, stompRapideCT;
     public float cleaveDamage, cleaveCD, cleaveCT;
     public float stompShieldDamage, stompShieldCD, stompShieldCT, stompShieldStun;
     public float stompNoShieldDamage, stompNoShieldCD, stompNoShieldCT;
+    public float ImmoShotDamage, ImmoShotCD, ImmoShotCT, ImmoShotStun;
     private float attack1Timer, attack1TimerShield, attack1Casting;
     public Image CD1;
 
@@ -41,13 +43,14 @@ public class PlayerSkills : MonoBehaviour
 
     public bool attack3;
     public BoxCollider attackCol3;
-    public GameObject tirRapideProjectile, weaponThrowShield, weaponThrowNoShield;
+    public GameObject tirRapideProjectile, weaponThrowShield, weaponThrowNoShield, bouncingShotProjectile;
     public Transform projectileSpawn;
     public float projectileForce, weaponThrowShieldProjectileForce, weaponThrowNoShieldProjectileForce;
     public float tirRapideDamage, tirRapideCD, tirRapideCT;
     public float boomDamage, boomCD, boomCT, boomReducCD;
     public float weaponThrowShieldDamage, weaponThrowShieldCD, weaponThrowShieldCT;
     public float weaponThrowNoShieldDamage, weaponThrowNoShieldCD, weaponThrowNoShieldCT, weaponThrowNoShieldStun;
+    public float bouncingShotDamage, bouncingShotCD, bouncingShotCT;
     public bool weaponGround;
     private float attack3Timer, attack3TimerShield, attack3Casting;
     public Image CD3;
@@ -79,7 +82,7 @@ public class PlayerSkills : MonoBehaviour
                 {
                     for (int i = 0; i < targets.Count; i++)
                     {
-                        targets[i].SendMessage("TakeDamage", stompRapideDamage + stats.strenght);
+                        targets[i].SendMessage("TakeDamage", stompRapideDamage);
                         if (!stats.transformed)
                             stats.greenForm += 1;
                     }
@@ -107,7 +110,7 @@ public class PlayerSkills : MonoBehaviour
                 {
                     for (int i = 0; i < targets.Count; i++)
                     {
-                        targets[i].SendMessage("TakeDamage", cleave360Damage + stats.strenght);
+                        targets[i].SendMessage("TakeDamage", cleave360Damage);
                         if (!stats.transformed)
                             stats.redForm += 1;
                     }
@@ -159,11 +162,11 @@ public class PlayerSkills : MonoBehaviour
                     {
                         if (stats.revenge)
                         {
-                            targets[i].SendMessage("TakeDamage", (cleaveDamage + stats.strenght) * stats.revengeDamage);
+                            targets[i].SendMessage("TakeDamage", cleaveDamage * stats.revengeDamage);
                             stats.Heal(stats.revengeHeal);
                         }
                         else
-                            targets[i].SendMessage("TakeDamage", cleaveDamage + stats.strenght);
+                            targets[i].SendMessage("TakeDamage", cleaveDamage);
                         if (attack3Timer > 0)
                         {
                             attack3Timer -= boomReducCD;
@@ -203,11 +206,11 @@ public class PlayerSkills : MonoBehaviour
                     {
                         if (stats.revenge)
                         {
-                            targets[i].SendMessage("TakeDamage", (tourbillonDamage * stats.revengeDamage) + stats.strenght );
+                            targets[i].SendMessage("TakeDamage", tourbillonDamage * stats.revengeDamage);
                             stats.Heal(stats.revengeHeal);
                         }
                         else
-                            targets[i].SendMessage("TakeDamage", tourbillonDamage + stats.strenght);
+                            targets[i].SendMessage("TakeDamage", tourbillonDamage);
                     }
                 }
                 if (stats.revenge)
@@ -248,10 +251,10 @@ public class PlayerSkills : MonoBehaviour
                     {
                         if (stats.revenge)
                         {
-                            targets[i].SendMessage("TakeDamage", (boomDamage + stats.strenght) * stats.revengeDamage);
+                            targets[i].SendMessage("TakeDamage", boomDamage * stats.revengeDamage);
                             stats.Heal(stats.revengeHeal);
                         }
-                        targets[i].SendMessage("TakeDamage", boomDamage + stats.strenght);
+                        targets[i].SendMessage("TakeDamage", boomDamage);
                     }
                 }
                 if (stats.revenge)
@@ -276,6 +279,22 @@ public class PlayerSkills : MonoBehaviour
         if (stats.form == 2)
         {
             attackCol2 = tripleProcCol;
+            //Immo Shot
+            if (attack1Timer > 0)
+            {
+                attack1Timer -= Time.deltaTime;
+                CD1.fillAmount = attack1Timer / ImmoShotCD;
+            }
+            else
+                CD1.fillAmount = 0;
+            //Bouncing Shot
+            if (attack3Timer > 0)
+            {
+                attack3Timer -= Time.deltaTime;
+                CD3.fillAmount = attack3Timer / bouncingShotCD;
+            }
+            else
+                CD3.fillAmount = 0;
         }
 
         if (stats.form == 3)
@@ -299,7 +318,7 @@ public class PlayerSkills : MonoBehaviour
                     {
                         for (int i = 0; i < targets.Count; i++)
                         {
-                            targets[i].SendMessage("TakeDamage", stompShieldDamage + stats.strenght);
+                            targets[i].SendMessage("TakeDamage", stompShieldDamage);
                             targets[i].SendMessage("TakeStun", stompShieldStun);
                             if (!stats.transformed)
                                 stats.greenForm += 1;
@@ -349,7 +368,7 @@ public class PlayerSkills : MonoBehaviour
                     {
                         for (int i = 0; i < targets.Count; i++)
                         {
-                            targets[i].SendMessage("TakeDamage", stompNoShieldDamage + stats.strenght);
+                            targets[i].SendMessage("TakeDamage", stompNoShieldDamage);
                             if (!stats.transformed)
                                 stats.greenForm += 1;
                         }
@@ -463,7 +482,7 @@ public class PlayerSkills : MonoBehaviour
         {
             GameObject projectileClone = Instantiate(tirRapideProjectile, projectileSpawn.position, Quaternion.identity);
             projectileClone.GetComponent<Rigidbody>().AddForce(projectileSpawn.transform.forward * projectileForce, ForceMode.VelocityChange);
-            projectileClone.GetComponent<Projectile>().damage = tirRapideDamage + stats.strenght;
+            projectileClone.GetComponent<Projectile>().damage = tirRapideDamage;
             projectileClone.GetComponent<Projectile>().stats = stats;
             attack3Timer = tirRapideCD;
             CD3.fillAmount = 1;
@@ -564,7 +583,11 @@ public class PlayerSkills : MonoBehaviour
     {
         if (attack1Timer <= 0)
         {
-
+            GameObject projectileClone = Instantiate(ImmoShotProjectile, projectileSpawn.position, transform.rotation);
+            projectileClone.GetComponent<ImmoShot>().damage = ImmoShotDamage;
+            projectileClone.GetComponent<ImmoShot>().stunDuration = ImmoShotStun;
+            attack1Timer = ImmoShotCD;
+            CD1.fillAmount = 1;
         }
     }
     void TripleProc()
@@ -585,7 +608,11 @@ public class PlayerSkills : MonoBehaviour
     {
         if (attack3Timer <= 0)
         {
-
+            GameObject projectileClone = Instantiate(bouncingShotProjectile, projectileSpawn.position, Quaternion.identity);
+            projectileClone.GetComponent<Rigidbody>().AddForce(projectileSpawn.transform.forward * projectileForce, ForceMode.VelocityChange);
+            projectileClone.GetComponent<BouncingShot>().damage = bouncingShotDamage;
+            attack3Timer = bouncingShotCD;
+            CD3.fillAmount = 1;
         }
     }
 
@@ -660,7 +687,7 @@ public class PlayerSkills : MonoBehaviour
             {
                 GameObject projectileClone = Instantiate(weaponThrowShield, projectileSpawn.position, Quaternion.identity);
                 projectileClone.GetComponent<Rigidbody>().AddForce(projectileSpawn.transform.forward * weaponThrowShieldProjectileForce, ForceMode.VelocityChange);
-                projectileClone.GetComponent<WeaponThrowShield>().damage = weaponThrowShieldDamage + stats.strenght;
+                projectileClone.GetComponent<WeaponThrowShield>().damage = weaponThrowShieldDamage;
                 projectileClone.GetComponent<WeaponThrowShield>().stats = stats;
                 attack3TimerShield = weaponThrowShieldCD;
                 CD3.fillAmount = 1;
@@ -674,8 +701,7 @@ public class PlayerSkills : MonoBehaviour
             {
                 GameObject projectileClone = Instantiate(weaponThrowNoShield, projectileSpawn.position, transform.rotation);
                 projectileClone.GetComponent<Rigidbody>().AddForce(projectileSpawn.transform.forward * weaponThrowNoShieldProjectileForce, ForceMode.VelocityChange);
-                projectileClone.GetComponent<WeaponThrowNoShield>().damage = weaponThrowNoShieldDamage + stats.strenght;
-                projectileClone.GetComponent<WeaponThrowNoShield>().stats = stats;
+                projectileClone.GetComponent<WeaponThrowNoShield>().damage = weaponThrowNoShieldDamage;
                 projectileClone.GetComponent<WeaponThrowNoShield>().stunDuration = weaponThrowNoShieldStun;
                 attack3Timer = weaponThrowNoShieldCD;
                 CD3.fillAmount = 1;

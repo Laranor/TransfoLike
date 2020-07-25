@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class EnemyStats : MonoBehaviour
 {
-    private float HP;
+    [SerializeField] private float HP;
     public float maxHP;
     public Image HPBar;
     public Canvas canvas;
