@@ -9,11 +9,14 @@ public class PlayerSkills : MonoBehaviour
     Animator animAvatar;
     CharacterMovement CM;
 
+    public bool tpAttack;
+    public CapsuleCollider tpCol;
     public float dashCooldown, dashTime;
     public float dashSlashCooldown, dashSlashTime, dashSlashDamage;
     public float slowChargeNoShieldCD, slowChargeNoShieldTime, slowChargeNoShieldDamage;
     public float slowChargeShieldCD, slowChargeShieldTime, slowChargeShieldStun;
-    private float dashTimer, dashTimerShield;
+    public float teleportationCD, teleportationRange, teleportationDamage, teleportationCT;
+    private float dashTimer, dashTimerShield, tpCasting;
     public Image CD4;
 
     public bool attack1;
@@ -34,6 +37,7 @@ public class PlayerSkills : MonoBehaviour
     public float cleave360Damage, cleave360CD, cleave360CT;
     public float tourbillonDamage, tourbillonCD, tourbillonCT;
     public float shieldValue, shieldMax, shieldCD, shieldCharge;
+    public float tripleProcDamage, tripleProcCD, tripleProcCT, procNum;
     public bool shieldUp;
     private float attack2Timer, attack2Casting;
     public Image CD2, shieldBar;
@@ -287,6 +291,41 @@ public class PlayerSkills : MonoBehaviour
             }
             else
                 CD1.fillAmount = 0;
+            //TripleProc
+            if (attack2Casting <= tripleProcCT && attack2)
+            {
+                attack2Casting += Time.deltaTime;
+            }
+            if (attack2Casting >= tripleProcCT && attack2)
+            {
+                if (targets.Count > 0)
+                {
+                    for (int i = 0; i < targets.Count; i++)
+                    {
+                        targets[i].SendMessage("TakeDamage", tripleProcDamage);
+                    }
+                }
+                attackCol2.enabled = false;
+                attack2 = false;
+                attack2Casting = 0;
+                targets.Clear();
+                if (procNum < 2)
+                {
+                    procNum += 1;
+                    attack2Casting = 0;
+                    attack2 = true;
+                    attackCol2.enabled = true;
+                    animAvatar.SetTrigger("Attack2");
+                    animAvatar.SetBool("Attacking", true);
+                }
+                else
+                    procNum = 0;
+            }
+            if (attack2Timer > 0)
+            {
+                attack2Timer -= Time.deltaTime;
+                CD2.fillAmount = attack2Timer / tripleProcCD;
+            }
             //Bouncing Shot
             if (attack3Timer > 0)
             {
@@ -295,6 +334,32 @@ public class PlayerSkills : MonoBehaviour
             }
             else
                 CD3.fillAmount = 0;
+            //Teleportation
+            if (tpCasting <= teleportationCT && tpAttack)
+            {
+                tpCasting += Time.deltaTime;
+            }
+            if (tpCasting >= teleportationCT && tpAttack)
+            {
+                if (targets.Count > 0)
+                {
+                    for (int i = 0; i < targets.Count; i++)
+                    {
+                        targets[i].SendMessage("TakeDamage", teleportationDamage);
+                    }
+                }
+                tpCol.enabled = false;
+                tpAttack = false;
+                tpCasting = 0;
+                targets.Clear();
+            }
+            if (dashTimer > 0)
+            {
+                dashTimer -= Time.deltaTime;
+                CD4.fillAmount = dashTimer / teleportationCD;
+            }
+            else
+                CD4.fillAmount = 0;
         }
 
         if (stats.form == 3)
@@ -594,14 +659,29 @@ public class PlayerSkills : MonoBehaviour
     {
         if (attack2Timer <= 0)
         {
-
+            attack2Casting = 0;
+            attack2 = true;
+            attackCol2.enabled = true;
+            animAvatar.SetTrigger("Attack2");
+            attack2Timer = tripleProcCD;
+            CD2.fillAmount = 1;
+            animAvatar.SetBool("Attacking", true);
         }
     }
     void Teleportation()
     {
         if (dashTimer <= 0)
         {
-
+            CM.avatar.enabled = false;
+            transform.position += transform.forward * teleportationRange;
+            CM.avatar.enabled = true;
+            dashTimer = teleportationCD;
+            tpCasting = 0;
+            tpAttack = true;
+            tpCol.enabled = true;
+            animAvatar.SetTrigger("Attack2");
+            animAvatar.SetBool("Attacking", true);
+            CD4.fillAmount = 1;
         }
     }
     void BoucingShot()
@@ -711,7 +791,7 @@ public class PlayerSkills : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        if (attack1 || attack2 || attack3)
+        if (attack1 || attack2 || attack3 || tpAttack)
         {
             if (other.gameObject.tag == "Enemy")
             {
@@ -723,7 +803,7 @@ public class PlayerSkills : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
-        if (attack1 || attack2 || attack3)
+        if (attack1 || attack2 || attack3 || tpAttack)
         {
             if (other.gameObject.tag == "Enemy")
             {

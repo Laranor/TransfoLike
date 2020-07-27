@@ -535,7 +535,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh14588
+  m_Name: pb_Mesh14600
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -1522,7 +1522,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh14536
+  m_Name: pb_Mesh14548
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -2196,7 +2196,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh14262
+  m_Name: pb_Mesh14274
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -2647,6 +2647,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2354faaaf7655a438854e21509015b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  tpAttack: 0
+  tpCol: {fileID: 1221798506}
   dashCooldown: 2
   dashTime: 0.1
   dashSlashCooldown: 4
@@ -2658,6 +2660,10 @@ MonoBehaviour:
   slowChargeShieldCD: 5
   slowChargeShieldTime: 0.1
   slowChargeShieldStun: 2
+  teleportationCD: 5
+  teleportationRange: 3
+  teleportationDamage: 50
+  teleportationCT: 0.2
   CD4: {fileID: 978018435}
   attack1: 0
   ImmoShotProjectile: {fileID: 3436034859870346820, guid: 1c2b08b7b958a0f40a1becf11e1c7bd8,
@@ -2698,6 +2704,10 @@ MonoBehaviour:
   shieldMax: 100
   shieldCD: 0
   shieldCharge: 10
+  tripleProcDamage: 20
+  tripleProcCD: 5
+  tripleProcCT: 1
+  procNum: 0
   shieldUp: 0
   CD2: {fileID: 1534155693}
   shieldBar: {fileID: 214160094}
@@ -4819,7 +4829,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh14512
+  m_Name: pb_Mesh14524
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
