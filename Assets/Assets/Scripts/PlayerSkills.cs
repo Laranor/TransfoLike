@@ -11,6 +11,7 @@ public class PlayerSkills : MonoBehaviour
 
     public bool tpAttack;
     public CapsuleCollider tpCol;
+    public Transform ghostPos;
     public float dashCooldown, dashTime;
     public float dashSlashCooldown, dashSlashTime, dashSlashDamage;
     public float slowChargeNoShieldCD, slowChargeNoShieldTime, slowChargeNoShieldDamage;
@@ -49,7 +50,7 @@ public class PlayerSkills : MonoBehaviour
     public BoxCollider attackCol3;
     public GameObject tirRapideProjectile, weaponThrowShield, weaponThrowNoShield, bouncingShotProjectile;
     public Transform projectileSpawn;
-    public float projectileForce, weaponThrowShieldProjectileForce, weaponThrowNoShieldProjectileForce;
+    public float projectileForce, bouncingShotProjectileForce, weaponThrowShieldProjectileForce, weaponThrowNoShieldProjectileForce;
     public float tirRapideDamage, tirRapideCD, tirRapideCT;
     public float boomDamage, boomCD, boomCT, boomReducCD;
     public float weaponThrowShieldDamage, weaponThrowShieldCD, weaponThrowShieldCT;
@@ -302,8 +303,21 @@ public class PlayerSkills : MonoBehaviour
                 {
                     for (int i = 0; i < targets.Count; i++)
                     {
-                        targets[i].SendMessage("TakeDamage", tripleProcDamage);
+                        targets[i].SendMessage("TakeDamage", tripleProcDamage * stats.comboValue);
                     }
+                    if(procNum == 2)
+                    {
+                        stats.comboValue += stats.comboIncrease;
+                        if (!stats.spell2)
+                            stats.spell2 = true;
+                        else
+                            stats.ResetCombo();
+                    }
+                }
+                if (targets.Count <= 0 && procNum == 2)
+                {
+                    stats.comboValue = 1;
+                    stats.ResetCombo();
                 }
                 attackCol2.enabled = false;
                 attack2 = false;
@@ -345,8 +359,18 @@ public class PlayerSkills : MonoBehaviour
                 {
                     for (int i = 0; i < targets.Count; i++)
                     {
-                        targets[i].SendMessage("TakeDamage", teleportationDamage);
+                        targets[i].SendMessage("TakeDamage", teleportationDamage * stats.comboValue);
                     }
+                    stats.comboValue += stats.comboIncrease;
+                    if (!stats.spell4)
+                        stats.spell4 = true;
+                    else
+                        stats.ResetCombo();
+                }
+                else
+                {
+                    stats.comboValue = 1;
+                    stats.ResetCombo();
                 }
                 tpCol.enabled = false;
                 tpAttack = false;
@@ -649,7 +673,7 @@ public class PlayerSkills : MonoBehaviour
         if (attack1Timer <= 0)
         {
             GameObject projectileClone = Instantiate(ImmoShotProjectile, projectileSpawn.position, transform.rotation);
-            projectileClone.GetComponent<ImmoShot>().damage = ImmoShotDamage;
+            projectileClone.GetComponent<ImmoShot>().damage = ImmoShotDamage * stats.comboValue;
             projectileClone.GetComponent<ImmoShot>().stunDuration = ImmoShotStun;
             attack1Timer = ImmoShotCD;
             CD1.fillAmount = 1;
@@ -673,7 +697,7 @@ public class PlayerSkills : MonoBehaviour
         if (dashTimer <= 0)
         {
             CM.avatar.enabled = false;
-            transform.position += transform.forward * teleportationRange;
+            transform.position = ghostPos.position;
             CM.avatar.enabled = true;
             dashTimer = teleportationCD;
             tpCasting = 0;
@@ -689,8 +713,8 @@ public class PlayerSkills : MonoBehaviour
         if (attack3Timer <= 0)
         {
             GameObject projectileClone = Instantiate(bouncingShotProjectile, projectileSpawn.position, Quaternion.identity);
-            projectileClone.GetComponent<Rigidbody>().AddForce(projectileSpawn.transform.forward * projectileForce, ForceMode.VelocityChange);
-            projectileClone.GetComponent<BouncingShot>().damage = bouncingShotDamage;
+            projectileClone.GetComponent<Rigidbody>().AddForce(projectileSpawn.transform.forward * bouncingShotProjectileForce, ForceMode.VelocityChange);
+            projectileClone.GetComponent<BouncingShot>().damage = bouncingShotDamage * stats.comboValue;
             attack3Timer = bouncingShotCD;
             CD3.fillAmount = 1;
         }

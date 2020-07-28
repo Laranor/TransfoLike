@@ -34,6 +34,9 @@ public class PlayerStats : MonoBehaviour
     private float revengeCDTimer;
     public float revengeTimer, revengeDuration, revengeDamage, revengeHeal, revengeCD;
     public Image CDpassiv;
+
+    public float comboValue = 1, combo4Spells, comboIncrease;
+    public bool spell1, spell2, spell3, spell4;
     void Start()
     {
         HP = maxHP;
@@ -44,6 +47,12 @@ public class PlayerStats : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if(spell1 && spell2 && spell3 && spell4)
+        {
+            comboValue += combo4Spells;
+            ResetCombo();
+        }
+
         if (Input.GetKeyDown(KeyCode.A))
             TakeDamage(10);
         green.fillAmount = greenForm / maxForm;
@@ -183,5 +192,12 @@ public class PlayerStats : MonoBehaviour
         HP += healAmount;
         if (HP > maxHP)
             HP = maxHP;
+    }
+    public void ResetCombo()
+    {
+        spell1 = false;
+        spell2 = false;
+        spell3 = false;
+        spell4 = false;
     }
 }
