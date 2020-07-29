@@ -106,7 +106,7 @@ public class PlayerStats : MonoBehaviour
                 {
                     blueForm = 0;
                     playerSkills.shieldUp = false;
-                    playerSkills.shield.SetActive(false);
+                    playerSkills.shieldBarOBJ.SetActive(false);
                 }
                 body.material.SetColor("_Color", baseColor);
                 form = 0;

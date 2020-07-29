@@ -10,7 +10,7 @@ public class PlayerSkills : MonoBehaviour
     CharacterMovement CM;
 
     public bool tpAttack;
-    public CapsuleCollider tpCol;
+    public MeshCollider tpCol;
     public Transform ghostPos;
     public float dashCooldown, dashTime;
     public float dashSlashCooldown, dashSlashTime, dashSlashDamage;
@@ -21,9 +21,9 @@ public class PlayerSkills : MonoBehaviour
     public Image CD4;
 
     public bool attack1;
-    BoxCollider attackCol1;
+    MeshCollider attackCol1;
     public GameObject ImmoShotProjectile;
-    public BoxCollider stompRapideCol, cleaveCol, stompShieldCol, stompNoShieldCol;
+    public MeshCollider stompRapideCol, cleaveCol, stompShieldCol, stompNoShieldCol;
     public float stompRapideDamage, stompRapideCD, stompRapideCT;
     public float cleaveDamage, cleaveCD, cleaveCT;
     public float stompShieldDamage, stompShieldCD, stompShieldCT, stompShieldStun;
@@ -33,8 +33,8 @@ public class PlayerSkills : MonoBehaviour
     public Image CD1;
 
     public bool attack2;
-    CapsuleCollider attackCol2;
-    public CapsuleCollider cleave360Col, tourbillonCol, tripleProcCol;
+    MeshCollider attackCol2;
+    public MeshCollider cleave360Col, tourbillonCol, tripleProcCol1, tripleProcCol2, tripleProcCol3;
     public float cleave360Damage, cleave360CD, cleave360CT;
     public float tourbillonDamage, tourbillonCD, tourbillonCT;
     public float shieldValue, shieldMax, shieldCD, shieldCharge;
@@ -42,12 +42,12 @@ public class PlayerSkills : MonoBehaviour
     public bool shieldUp;
     private float attack2Timer, attack2Casting;
     public Image CD2, shieldBar;
-    public GameObject shield;
+    public GameObject shieldBarOBJ, shield;
 
     public bool trigger;
 
     public bool attack3;
-    public BoxCollider attackCol3;
+    public MeshCollider attackCol3;
     public GameObject tirRapideProjectile, weaponThrowShield, weaponThrowNoShield, bouncingShotProjectile;
     public Transform projectileSpawn;
     public float projectileForce, bouncingShotProjectileForce, weaponThrowShieldProjectileForce, weaponThrowNoShieldProjectileForce;
@@ -283,7 +283,12 @@ public class PlayerSkills : MonoBehaviour
 
         if (stats.form == 2)
         {
-            attackCol2 = tripleProcCol;
+            if (procNum == 0)
+                attackCol2 = tripleProcCol1;
+            if (procNum == 1)
+                attackCol2 = tripleProcCol2;
+            if (procNum == 2)
+                attackCol2 = tripleProcCol3;
             //Immo Shot
             if (attack1Timer > 0)
             {
@@ -320,12 +325,21 @@ public class PlayerSkills : MonoBehaviour
                     stats.ResetCombo();
                 }
                 attackCol2.enabled = false;
+                tripleProcCol1.enabled = false;
+                tripleProcCol2.enabled = false;
+                tripleProcCol3.enabled = false;
                 attack2 = false;
                 attack2Casting = 0;
                 targets.Clear();
                 if (procNum < 2)
                 {
                     procNum += 1;
+                    if (procNum == 0)
+                        attackCol2 = tripleProcCol1;
+                    if (procNum == 1)
+                        attackCol2 = tripleProcCol2;
+                    if (procNum == 2)
+                        attackCol2 = tripleProcCol3;
                     attack2Casting = 0;
                     attack2 = true;
                     attackCol2.enabled = true;
@@ -388,13 +402,13 @@ public class PlayerSkills : MonoBehaviour
 
         if (stats.form == 3)
         {
-            shield.SetActive(true);
+            shieldBarOBJ.SetActive(true);
             
             shieldBar.fillAmount = shieldValue / shieldMax;
             //Spell with shield
             if (shieldUp)
             {
-                shield.transform.position = new Vector3(shield.transform.position.x, 110, shield.transform.position.z);
+                shieldBarOBJ.transform.position = new Vector3(shieldBarOBJ.transform.position.x, 110, shieldBarOBJ.transform.position.z);
                 attackCol1 = stompShieldCol;
                 //Stomp
                 if (attack1Casting <= stompShieldCT && attack1)
@@ -442,7 +456,7 @@ public class PlayerSkills : MonoBehaviour
             //Spell without shield
             else
             {
-                shield.transform.position = new Vector3(shield.transform.position.x, 90, shield.transform.position.z);
+                shieldBarOBJ.transform.position = new Vector3(shieldBarOBJ.transform.position.x, 90, shieldBarOBJ.transform.position.z);
                 attackCol1 = stompNoShieldCol;
                 if (shieldValue < shieldMax && !weaponGround)
                     shieldValue += shieldCharge * Time.deltaTime;
@@ -569,7 +583,7 @@ public class PlayerSkills : MonoBehaviour
     {
         if(attack3Timer <= 0)
         {
-            GameObject projectileClone = Instantiate(tirRapideProjectile, projectileSpawn.position, Quaternion.identity);
+            GameObject projectileClone = Instantiate(tirRapideProjectile, projectileSpawn.position, transform.rotation);
             projectileClone.GetComponent<Rigidbody>().AddForce(projectileSpawn.transform.forward * projectileForce, ForceMode.VelocityChange);
             projectileClone.GetComponent<Projectile>().damage = tirRapideDamage;
             projectileClone.GetComponent<Projectile>().stats = stats;
@@ -712,7 +726,7 @@ public class PlayerSkills : MonoBehaviour
     {
         if (attack3Timer <= 0)
         {
-            GameObject projectileClone = Instantiate(bouncingShotProjectile, projectileSpawn.position, Quaternion.identity);
+            GameObject projectileClone = Instantiate(bouncingShotProjectile, projectileSpawn.position, transform.rotation);
             projectileClone.GetComponent<Rigidbody>().AddForce(projectileSpawn.transform.forward * bouncingShotProjectileForce, ForceMode.VelocityChange);
             projectileClone.GetComponent<BouncingShot>().damage = bouncingShotDamage * stats.comboValue;
             attack3Timer = bouncingShotCD;
@@ -755,11 +769,15 @@ public class PlayerSkills : MonoBehaviour
         if (shieldUp)
         {
             shieldUp = false;
+            shield.SetActive(false);
         }
         else
         {
             if(shieldValue > 0 && !weaponGround)
+            {
                 shieldUp = true;
+                shield.SetActive(true);
+            }
         }
     }
     void SlowCharge()
@@ -797,6 +815,7 @@ public class PlayerSkills : MonoBehaviour
                 CD3.fillAmount = 1;
                 weaponGround = true;
                 shieldUp = false;
+                shield.SetActive(false);
             }
         }
         else
